@@ -95,6 +95,8 @@ exports.logoutUser = function (req, res, next) {
 };
 
 // Password Reset
+
+
 exports.resetPassword = async function (req, res, next) {
     const { email, password } = req.body;
 
@@ -121,8 +123,11 @@ exports.resetPassword = async function (req, res, next) {
         if (!user) {
             return res.status(404).json({ "Success": "This Email Is not registered!" });
         } else {
+            // Hash the new password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
             // Update password
-            user.password = password;
+            user.password = hashedPassword;
             await user.save();
 
             console.log('Success');
