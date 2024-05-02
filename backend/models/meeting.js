@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
 const meetingSchema = new mongoose.Schema({
-    departmentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department', // Assuming you have a Department model
-        required: true
-    },
-    meetingId:{
+    meetingId: {
         type: String,
         required: true
     },
+    departmentIds: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+    }],
     tag: {
         type: String,
         required: true
@@ -26,9 +25,10 @@ const meetingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    imageUrl: String // Optional field for storing image URL
+    imageUrl: {
+        type: String,
+        default: null
+    }
 });
 
-const Meeting = mongoose.model('Meeting', meetingSchema);
-
-module.exports = Meeting;
+module.exports = mongoose.model('Meeting', meetingSchema);

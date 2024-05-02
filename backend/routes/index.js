@@ -24,8 +24,10 @@ router.put('/edit-register-user-with-department', authMiddleware, departmentCont
 router.get('/departments', authMiddleware, departmentController.getAllDepartments);
 router.post('/login', userController.loginUser);
 router.get('/profile', authMiddleware, userController.getProfile);
-router.get('/logout', authMiddleware, userController.logoutUser); // Added authMiddleware here
-router.post('/reset-password', authMiddleware, userController.resetPassword); // Added authMiddleware here
-router.post('/add-meeting', upload.single('file'), meetingController.addMeeting); // Define route for adding a meeting
+router.get('/logout', userController.logoutUser); // Added authMiddleware here
+router.post('/reset-password', userController.resetPassword); // Added authMiddleware here
+router.post('/add-meeting', upload.single('file'),authMiddleware, meetingController.addMeeting); // Define route for adding a meeting
+router.put('/edit-meeting', upload.single('file'),authMiddleware, meetingController.editMeeting);
+router.get('/meetings',authMiddleware, meetingController.getAllMeetings);
 
 module.exports = router;
