@@ -6,6 +6,10 @@ const meetingSchema = new mongoose.Schema({
         ref: 'Department', // Assuming you have a Department model
         required: true
     },
+    meetingId:{
+        type: String,
+        required: true
+    },
     tag: {
         type: String,
         required: true
