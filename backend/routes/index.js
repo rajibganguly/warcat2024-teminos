@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Define routes
-router.post('/register-user-with-department', authMiddleware, departmentController.registerUserWithDepartment);
+router.post('/register-user-with-department', departmentController.registerUserWithDepartment);
 router.put('/edit-register-user-with-department', authMiddleware, departmentController.editRegisterUserWithDepartment);
 router.get('/departments', authMiddleware, departmentController.getAllDepartments);
 router.post('/login', userController.loginUser);
