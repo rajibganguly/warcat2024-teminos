@@ -14,7 +14,7 @@ exports.loginUser = async function (req, res, next) {
         if (user) {
             // Check if the retrieved user's role_type matches the expected role_type
             if (user.role_type !== role_type) {
-                return res.json({ success: false, message: "User role does not match the expected role type!" });
+                return res.status(400).json({ statusTxt: "error", message: "User role does not match the expected role type!" });
             }
             
             // Check if the provided password matches the hashed password in the database
@@ -36,19 +36,19 @@ exports.loginUser = async function (req, res, next) {
                 const token = jwt.sign(tokenPayload, 'your_secret_key', { expiresIn: '1h' });
                 
                 // Return success response with token
-                return res.json({ success: true, message: "Login successful!", token });
+                return res.json({ statusTxt: "success", message: "Login successful!", token });
             } else {
                 // Return error response if password is incorrect
-                return res.json({ success: false, message: "Wrong password!" });
+                return res.json({ statusTxt: "error", message: "Wrong password!" });
             }
         } else {
             // Return error response if user does not exist
-            return res.json({ success: false, message: "This Email Is not registered!" });
+            return res.json({ statusTxt: "error", message: "This Email Is not registered!" });
         }
     } catch (err) {
         // Return error response for any internal server error
         console.error(err);
-        return res.status(500).json({ success: false, message: "An error occurred while processing your request." });
+        return res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
 };
 
@@ -66,7 +66,7 @@ exports.getProfile = async function (req, res, next) {
         console.log("data");
         console.log(data);
         if (!data) {
-            return res.status(404).json({ error: "User not found." });
+            return res.status(404).json({ statusTxt: "error", message: "User not found." });
         }
         const profileData = {
             name: data.username,
@@ -76,10 +76,10 @@ exports.getProfile = async function (req, res, next) {
             phone_number: data.phone_number,
             designation: data.designation
         };
-        res.json({ message: "Profile retrieved successfully.", profileData });
+        res.json({ statusTxt: "success", message: "Profile retrieved successfully.", profileData });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "An error occurred while processing your request." });
+        res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
 };
 
@@ -103,25 +103,25 @@ exports.resetPassword = async function (req, res, next) {
     try {
         // Validate email
         if (!email) {
-            return res.status(400).json({ error: "Email is required." });
+            return res.status(400).json({ statusTxt: "error", message: "Email is required." });
         }
 
         // Validate email format
         const emailRegex = /\S+@\S+\.\S+/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: "Invalid email format." });
+            return res.status(400).json({ statusTxt: "error", message: "Invalid email format." });
         }
 
         // Validate password
         if (!password) {
-            return res.status(400).json({ error: "Password is required." });
+            return res.status(400).json({ statusTxt: "error", message: "Password is required." });
         }
 
         // Check if the email is registered
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({ "Success": "This Email Is not registered!" });
+            return res.status(404).json({ statusTxt: "error", message: "This Email Is not registered!" });
         } else {
             // Hash the new password
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -131,11 +131,11 @@ exports.resetPassword = async function (req, res, next) {
             await user.save();
 
             console.log('Success');
-            return res.json({ "Success": "Password changed!" });
+            return res.json({ statusTxt: "success", message: "Password changed!" });
         }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "An error occurred while processing your request." });
+        return res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
 };
 

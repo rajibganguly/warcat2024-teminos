@@ -27,10 +27,10 @@ exports.addMeeting = async (req, res) => {
         await newMeeting.save();
 
         // Return success response
-        res.status(201).json({ message: 'Meeting added successfully', meeting: newMeeting });
+        res.status(201).json({ statusTxt: "success", message: 'Meeting added successfully', meeting: newMeeting });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occurred while processing your request' });
+        res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
     }
 };
 
@@ -45,7 +45,7 @@ exports.editMeeting = async (req, res) => {
         let meeting = await Meeting.findOne({ meetingId: meetingId });
         
         if (!meeting) {
-            return res.status(404).json({ error: 'Meeting not found' });
+            return res.status(404).json({ statusTxt: "error", message: 'Meeting not found' });
         }
 
         // Check if file data exists in the request
@@ -69,10 +69,10 @@ exports.editMeeting = async (req, res) => {
         await meeting.save();
 
         // Return success response
-        res.status(200).json({ message: 'Meeting updated successfully', meeting });
+        res.status(200).json({ statusTxt: "success", message: 'Meeting updated successfully', meeting: meeting });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occurred while processing your request' });
+        res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
     }
 };
 
@@ -104,10 +104,10 @@ exports.getAllMeetings = async (req, res) => {
 
         // Resolve all promises and return the response
         const meetingsWithDepartmentNames = await Promise.all(promises);
-        res.status(200).json({ meetings: meetingsWithDepartmentNames });
+        res.status(200).json({ statusTxt: "success", meetings: meetingsWithDepartmentNames });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occurred while processing your request' });
+        res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
     }
 };
 

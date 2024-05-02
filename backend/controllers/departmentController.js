@@ -88,17 +88,17 @@ exports.registerUserWithDepartment = async function (req, res, next) {
         const existingDepartment = await Department.findOne({ department_name: dep_name });
         if (existingDepartment) {
             // Department already exists, send error message
-            return res.status(400).json({ error: 'Department already exists' });
+            return res.status(400).json({ statusTxt: "error", message: 'Department already exists' });
         }
 
         // Register users with department
         await handleUserRegistration(dep_name, secretary, headOffice);
 
         // Send success response
-        res.json({ "Success": "Department Added successfully." });
+        res.status(200).json({ statusTxt: "success", message: "Department Added successfully." });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "An error occurred while processing your request." });
+        res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
 };
 
@@ -109,7 +109,7 @@ exports.editRegisterUserWithDepartment = async function (req, res, next) {
         // Find the department
         const department = await Department.findOne({ department_name: dep_name });
         if (!department) {
-            return res.status(404).json({ error: "Department not found." });
+            return res.status(404).json({ statusTxt: "error", message: "Department not found." });
         }
 
         // Find users with the department ID
@@ -133,10 +133,10 @@ exports.editRegisterUserWithDepartment = async function (req, res, next) {
         // Register users with department
         await handleUserRegistration(dep_name, secretary, headOffice);
 
-        res.json({ success: "Department Edit successfully." });
+        res.status(200).json({ statusTxt: "success", message: "Department Edit successfully." });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "An error occurred while processing your request." });
+        res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
 };
 
@@ -230,7 +230,7 @@ exports.getAllDepartments = async (req, res) => {
         res.json(departmentsWithDetails);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occurred while processing your request' });
+        res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
     }
 };
 

@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
 
     // Check if token is present
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Unauthorized: No token provided' });
+        return res.status(401).json({ statusTxt: "error", message: 'Unauthorized: No token provided' });
     }
 
     // Split header to extract token
@@ -23,7 +23,16 @@ const authMiddleware = (req, res, next) => {
         next();
     } catch (error) {
         // Token is invalid
-        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+        return res.status(401).json({ statusTxt: "error", message: 'Unauthorized: Invalid token' });
+
+
+
+
+
+
+
+
+
     }
 };
 
