@@ -11,7 +11,7 @@ const userRoutes = require('./backend/routes/index'); // Import your routes file
 const app = express();
 
 // Middleware
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json({ limit: '20mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(cors()); // Enable CORS
 

@@ -28,6 +28,8 @@ router.get('/logout', userController.logoutUser); // Added authMiddleware here
 router.post('/reset-password', userController.resetPassword); // Added authMiddleware here
 router.post('/add-meeting', upload.single('file'),authMiddleware, meetingController.addMeeting); // Define route for adding a meeting
 router.put('/edit-meeting', upload.single('file'),authMiddleware, meetingController.editMeeting);
-router.get('/meetings',authMiddleware, meetingController.getAllMeetings);
+router.get('/meetings', authMiddleware, meetingController.getAllMeetings);
+
+router.post('/add-meeting-new', meetingController.addMeetingNew);
 
 module.exports = router;
