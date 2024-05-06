@@ -30,6 +30,4 @@ router.post('/add-meeting', upload.single('file'),authMiddleware, meetingControl
 router.put('/edit-meeting', upload.single('file'),authMiddleware, meetingController.editMeeting);
 router.get('/meetings', authMiddleware, meetingController.getAllMeetings);
 
-router.post('/add-meeting-new', meetingController.addMeetingNew);
-
 module.exports = router;

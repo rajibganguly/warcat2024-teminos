@@ -4,9 +4,9 @@ const Department = require('../models/department');
 
 exports.addMeeting = async (req, res) => {
     try {
-        const { departmentIds, tag, meetingTopic, selectDate, selectTime } = req.body;
-        const { file } = req; // Uploaded file (if any)
-        console.log(file)
+        const { departmentIds, tag, meetingTopic, selectDate, selectTime, imageUrl } = req.body;
+        // const { file } = req; // Uploaded file (if any)
+        // console.log(file)
         // Generate a unique meeting ID combining project name and random value
         const projectName = 'Warcat'; // Replace 'Warcat' with your actual project name
         const randomValue = Math.floor(Math.random() * 1000); // Generate a random number
@@ -15,19 +15,19 @@ exports.addMeeting = async (req, res) => {
         // Create a new Meeting instance
         const newMeeting = new Meeting({
             meetingId, // Assign the generated meeting ID
-            departmentIds, 
+            departmentIds,
             tag,
             meetingTopic,
             selectDate,
             selectTime,
-            imageUrl: file ? file.path : null // Store the file buffer if uploaded, otherwise null
+            imageUrl
         });
 
         // Save the meeting to the database
         await newMeeting.save();
 
         // Return success response
-        res.status(201).json({ statusTxt: "success", message: 'Meeting added successfully', meeting: newMeeting });
+        res.status(201).json({ statusTxt: "success", message: 'Meeting added successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
@@ -43,7 +43,7 @@ exports.editMeeting = async (req, res) => {
 
         // Find the meeting by custom meetingId
         let meeting = await Meeting.findOne({ meetingId: meetingId });
-        
+
         if (!meeting) {
             return res.status(404).json({ statusTxt: "error", message: 'Meeting not found' });
         }
@@ -111,36 +111,4 @@ exports.getAllMeetings = async (req, res) => {
     }
 };
 
-// New updated
-exports.addMeetingNew = async (req, res) => {
-    try {
-        const { departmentIds, tag, meetingTopic, selectDate, selectTime, imageUrl } = req.body;
-        // const { file } = req; // Uploaded file (if any)
-        // console.log(file)
-        // Generate a unique meeting ID combining project name and random value
-        const projectName = 'Warcat'; // Replace 'Warcat' with your actual project name
-        const randomValue = Math.floor(Math.random() * 1000); // Generate a random number
-        const meetingId = projectName + '-' + randomValue; // Combine project name and random value
-
-        // Create a new Meeting instance
-        const newMeeting = new Meeting({
-            meetingId, // Assign the generated meeting ID
-            departmentIds, 
-            tag,
-            meetingTopic,
-            selectDate,
-            selectTime,
-            imageUrl
-        });
-
-        // Save the meeting to the database
-        await newMeeting.save();
-
-        // Return success response
-        res.status(201).json({ statusTxt: "success", message: 'Meeting added successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
-    }
-};
 
