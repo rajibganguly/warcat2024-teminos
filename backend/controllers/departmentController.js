@@ -200,8 +200,9 @@ exports.getAllDepartments = async (req, res) => {
 
         // Create an array to store department details along with Secretary's and Head of Office's details
         const departmentsWithDetails = await Promise.all(departments.map(async (department) => {
-            const id = uuid();
-            // Find Secretary's details
+            
+            let getId = department._id;
+
             const secretary = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'secretary' });
 
             // Find Head of Office's details
@@ -209,7 +210,7 @@ exports.getAllDepartments = async (req, res) => {
 
             // Return department details along with Secretary's and Head of Office's details
             return {
-                id: id,
+                id: getId,
                 department: department,
                 secretary: secretary ? {
                     email: secretary.email,
