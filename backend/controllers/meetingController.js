@@ -35,10 +35,14 @@ exports.addMeeting = async (req, res) => {
 };
 
 
+/***
+ * @description EditMeetings
+ * @Input req param meeting Id
+ */
 // Controller function to handle PUT request for editing a meeting
 exports.editMeeting = async (req, res) => {
     try {
-        const { meetingId } = req.body;
+        const { meetingId } = req.query;
         const updateData = { ...req.body }; // Copy the request body to a new object
 
         // Find the meeting by custom meetingId
@@ -47,16 +51,6 @@ exports.editMeeting = async (req, res) => {
         if (!meeting) {
             return res.status(404).json({ statusTxt: "error", message: 'Meeting not found' });
         }
-
-        // Check if file data exists in the request
-        if (req.file) {
-            // If file data exists, update the imageUrl property of the meeting
-            meeting.imageUrl = req.file.path;
-        }
-
-        // Remove meetingId and file from updateData as we don't want to update these properties
-        delete updateData.meetingId;
-        delete updateData.file;
 
         // Update other meeting details dynamically based on the fields provided in the request body
         for (let key in updateData) {
@@ -68,7 +62,7 @@ exports.editMeeting = async (req, res) => {
         // Save the updated meeting to the database
         await meeting.save();
 
-        // Return success response
+        // Return success response warcat-144
         res.status(200).json({ statusTxt: "success", message: 'Meeting updated successfully', meeting: meeting });
     } catch (error) {
         console.error(error);
