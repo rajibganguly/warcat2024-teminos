@@ -4,17 +4,18 @@ const userController = require('../controllers/userController');
 const departmentController = require('../controllers/departmentController');
 const authMiddleware = require('../middleware/authMiddleware');
 const meetingController = require('../controllers/meetingController');
+const taskController = require('../controllers/taskController');
 const multer = require('multer');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    return cb(null, './uploads/meeting-images') // corrected the destination path
+    return cb(null, './uploads'); // Corrected the destination path
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    return cb(null, uniqueSuffix+ '-' + file.originalname )
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    return cb(null, uniqueSuffix + '-' + file.originalname);
   }
-})
+});
 
 const upload = multer({ storage });
 
@@ -27,7 +28,8 @@ router.get('/profile', authMiddleware, userController.getProfile);
 router.get('/logout', userController.logoutUser); // Added authMiddleware here
 router.post('/reset-password', userController.resetPassword); // Added authMiddleware here
 router.post('/add-meeting', upload.single('file'), meetingController.addMeeting); // Define route for adding a meeting
-router.put('/edit-meeting', upload.single('file'),authMiddleware, meetingController.editMeeting);
+router.put('/edit-meeting', upload.single('file'), authMiddleware, meetingController.editMeeting);
 router.get('/meetings', authMiddleware, meetingController.getAllMeetings);
+router.post('/add-task', upload.array('task_image', 30), taskController.addTask);
 
 module.exports = router;
