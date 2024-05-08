@@ -1,4 +1,16 @@
 const mongoose = require('mongoose');
+const yup = require('yup');
+
+// Define Yup validation schema
+const meetingSchemaValidation = yup.object().shape({
+    meetingId: yup.string().required(),
+    departmentIds: yup.array().of(yup.string().required()),
+    tag: yup.string().required(),
+    meetingTopic: yup.string().required(),
+    selectDate: yup.date().required(),
+    selectTime: yup.string().required(),
+    imageUrl: yup.string().nullable()
+});
 
 const meetingSchema = new mongoose.Schema({
     meetingId: {
@@ -28,6 +40,16 @@ const meetingSchema = new mongoose.Schema({
     imageUrl: {
         type: String,
         default: null
+    }
+});
+
+// Apply pre-validation hook using Yup
+meetingSchema.pre('validate', async function (next) {
+    try {
+        await meetingSchemaValidation.validate(this.toObject(), { abortEarly: false });
+        next();
+    } catch (error) {
+        next(error);
     }
 });
 
