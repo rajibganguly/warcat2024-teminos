@@ -1,32 +1,4 @@
 const mongoose = require('mongoose');
-const yup = require('yup');
-
-// Define Yup validation schema
-const taskSchemaValidation = yup.object().shape({
-    task_id: yup.string(),
-    department: yup.array().of(
-        yup.object().shape({
-            dep_id: yup.string(),
-            dep_name: yup.string(),
-            tag: yup.array().of(yup.string())
-        })
-    ),
-    task_title: yup.string(),
-    task_image: yup.string(),
-    target_date: yup.date(),
-    sub_task: yup.array().of(
-        yup.object().shape({
-            subtask_title: yup.string(),
-            subtask_image: yup.string(),
-            subtask_target_date: yup.date()
-        })
-    ),
-    status: yup.boolean(),
-    admin_verified: yup.boolean(),
-    add_note: yup.boolean(),
-    role_type: yup.string().oneOf(['admin']),
-    timestamp: yup.date()
-});
 
 const taskSchema = new mongoose.Schema({
     task_id: String,
@@ -45,19 +17,12 @@ const taskSchema = new mongoose.Schema({
     }],
     status: Boolean,
     admin_verified: { type: Boolean, default: false },
-    add_note: Boolean,
-    role_type: { type: String, enum: ['admin', 'user'] },
-    timestamp: Date
+    add_note: { type: Boolean, default: false },
+    task_add_by: { type: String, enum: ['admin'], default: 'admin' },
+    timestamp: { type: Date, default: Date.now }
 });
 
-// Apply pre-validation hook using Yup
-taskSchema.pre('validate', async function (next) {
-    try {
-        await taskSchemaValidation.validate(this.toObject(), { abortEarly: false });
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
+// Compile the schema into a model
+const Task = mongoose.model('Task', taskSchema);
 
-module.exports = mongoose.model('Task', taskSchema);
+module.exports = Task;

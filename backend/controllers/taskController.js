@@ -1,6 +1,6 @@
 const Task = require('../models/task'); // Import Task model
 const yup = require('yup');
-
+const { v4: uuidv4 } = require('uuid'); 
 // Define Yup validation schema for a single task
 const taskSchema = yup.object().shape({
     taskTitle: yup.string().required(),
@@ -34,6 +34,7 @@ exports.addTask = async function(req, res) {
         // Flatten the nested array of tasks within each department
         const allTasks = department.flatMap(dep =>
             dep.tasks.map(taskData => ({
+                task_id: uuidv4(), // Generate unique UUID
                 meetingId,
                 meetingTopic,
                 department: {
@@ -41,9 +42,9 @@ exports.addTask = async function(req, res) {
                     dep_name: dep.dep_name,
                     tag: dep.tag
                 },
-                taskTitle: taskData.taskTitle,
-                uploadImage: taskData.uploadImage,
-                targetDate: taskData.targetDate
+                task_title: taskData.taskTitle,
+                task_image: taskData.uploadImage,
+                target_date: taskData.targetDate
             }))
         );
 
