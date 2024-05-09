@@ -40,7 +40,7 @@ exports.loginUser = async function (req, res, next) {
 
                 const token = jwt.sign(tokenPayload, 'your_secret_key', { expiresIn: '1h' });
                 
-                return res.json({ statusTxt: "success", message: "Login successful!", token });
+                return res(200).json({ statusTxt: "success", message: "Login successful!", token });
             } else {
                 return res.status(401).json({ statusTxt: "error", message: "Wrong password!" }); // 401 for Unauthorized
             }
