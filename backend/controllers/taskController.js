@@ -39,6 +39,21 @@ const editTaskSchema = yup.object().shape({
 });
 
 
+const addSubTaskSchema = yup.object().shape({
+    parent_task_id: yup.string().required(),
+    subtask_title: yup.string().required(),
+    subtask_target_date: yup.date().required(),
+    subtask_image: yup.string().required()
+});
+
+const editSubTaskSchema = yup.object().shape({
+    sub_task_id: yup.string().required(),
+    subtask_title: yup.string().optional(), // Making these fields optional
+    subtask_image: yup.string().optional(),
+    subtask_target_date: yup.date().optional()
+});
+
+
 // API endpoint for adding tasks
 exports.addTask = async function(req, res) {
     try {
@@ -139,6 +154,88 @@ exports.editTask = async function(req, res) {
         }
 
         res.status(200).json({ message: 'Task updated successfully', task: updatedTask });
+    } catch (error) {
+        // Handle Yup validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.errors.join(', ') });
+        }
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+// API endpoint for adding a single subtask to a parent task
+exports.addSubTask = async function(req, res) {
+    try {
+        // Validate request body
+        const { parent_task_id, subtask_title, subtask_target_date, subtask_image } = await addSubTaskSchema.validate(req.body);
+
+        // Construct subtask object
+        const subTask = {
+            sub_task_id: uuidv4(), // Generate unique ID for subtask
+            parent_task_id:parent_task_id,
+            subtask_title,
+            subtask_target_date,
+            subtask_image
+        };
+
+        // Find the parent task by task_id
+        const parentTask = await Task.findOne({ task_id: parent_task_id });
+
+        // Check if the parent task exists
+        if (!parentTask) {
+            return res.status(404).json({ message: 'Parent task not found' });
+        }
+
+        // Add the new subtask to the existing sub_task array
+        parentTask.sub_task.push(subTask);
+
+        // Save the updated parent task
+        await parentTask.save();
+
+        res.status(201).json({ message: 'Subtask added successfully', subTask });
+    } catch (error) {
+        // Handle Yup validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.errors.join(', ') });
+        }
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+exports.editSubTask = async function(req, res) {
+    try {
+        // Validate request body
+        const { sub_task_id, subtask_title, subtask_image, subtask_target_date } = await editSubTaskSchema.validate(req.body);
+
+        // Find the task containing the subtask
+        const task = await Task.findOne({ 'sub_task.sub_task_id': sub_task_id });
+
+        // Check if the task exists
+        if (!task) {
+            return res.status(404).json({ message: 'Task containing the subtask not found' });
+        }
+
+        // Find the subtask by its ID
+        const subTask = task.sub_task.find(subTask => subTask.sub_task_id === sub_task_id);
+
+        // Check if the subtask exists
+        if (!subTask) {
+            return res.status(404).json({ message: 'Subtask not found' });
+        }
+
+        // Update the subtask details
+        if (subtask_title) subTask.subtask_title = subtask_title;
+        if (subtask_image) subTask.subtask_image = subtask_image;
+        if (subtask_target_date) subTask.subtask_target_date = subtask_target_date;
+
+        // Save the updated task
+        await task.save();
+
+        res.status(200).json({ message: 'Subtask updated successfully', task });
     } catch (error) {
         // Handle Yup validation errors
         if (error.name === 'ValidationError') {

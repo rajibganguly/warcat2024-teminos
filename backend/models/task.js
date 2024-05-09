@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { string } = require('yup');
 
 const taskSchema = new mongoose.Schema({
     task_id: String,
@@ -11,6 +12,8 @@ const taskSchema = new mongoose.Schema({
     task_image: String,
     target_date: Date,
     sub_task: [{
+        sub_task_id :String,
+        parent_task_id: String,
         subtask_title: String,
         subtask_image: String,
         subtask_target_date: Date
