@@ -237,3 +237,24 @@ exports.getAllDepartments = async (req, res) => {
     }
 };
 
+
+// Controller function to handle GET request for delete department
+exports.deleteDepartment = async (req, res) => {
+    const departmentId = req.params.departmentId;  
+    try {
+        
+        // Find the department by ID and delete it
+        const deletedDepartment = await Department.findByIdAndDelete(departmentId);
+        
+        if (!deletedDepartment) {
+            return res.status(404).json({ statusTxt: "error", message: 'Department not found' });
+        }
+
+        // Return the deleted department
+        res.status(200).json({ statusTxt: "success", message: `${deletedDepartment.dept.department_name} Department deleted successfully`});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
+    }
+};
+
