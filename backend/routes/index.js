@@ -29,5 +29,6 @@ router.post('/reset-password', userController.resetPassword); // Added authMiddl
 router.post('/add-meeting', authMiddleware, meetingController.addMeeting); // Define route for adding a meeting
 router.put('/edit-meeting', authMiddleware, meetingController.editMeeting);
 router.get('/meetings',authMiddleware, meetingController.getAllMeetings);
+router.delete('/deleteDepartment/:departmentId', authMiddleware, departmentController.deleteDepartment);
 
 module.exports = router;
