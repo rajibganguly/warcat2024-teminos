@@ -15,8 +15,8 @@ const taskSchema = new mongoose.Schema({
         subtask_image: String,
         subtask_target_date: Date
     }],
-    status: Boolean,
-    admin_verified: { type: Boolean, default: false },
+    status: { type: String, default: 'initiated' },
+    admin_verified: { type: Number, default: 0 },
     add_note: { type: Boolean, default: false },
     task_add_by: { type: String, enum: ['admin'], default: 'admin' },
     timestamp: { type: Date, default: Date.now }

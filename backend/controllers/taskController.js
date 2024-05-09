@@ -61,3 +61,38 @@ exports.addTask = async function(req, res) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
+// API endpoint for fetching tasks
+exports.getTask = async function(req, res) {
+    const { role_type } = req.body; // Assuming role_type is provided in the request body
+
+    try {
+        let tasks = [];
+
+        if (role_type === 'admin') {
+            // Fetch all tasks
+            tasks = await Task.find();
+        } else if (role_type === 'secretary') {
+            // Fetch tasks based on 'secretary' tag within the department
+            tasks = await Task.find({ 'department.tag': 'secretary' });
+        }
+        else if (role_type === 'head_of_office') {
+            // Fetch tasks based on 'secretary' tag within the department
+            tasks = await Task.find({ 'department.tag': 'head_of_office' });
+        } else {
+            return res.status(400).json({ message: 'Invalid role type' });
+        }
+
+        // Check if tasks were found
+        if (!tasks || tasks.length === 0) {
+            return res.status(404).json({ message: 'No tasks found' });
+        }
+
+        // Return the fetched tasks
+        res.status(200).json({ message: 'Tasks retrieved successfully', tasks });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
