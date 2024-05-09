@@ -4,49 +4,54 @@ const router = express.Router();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const Department = require('../models/department');
-
+const yup = require('yup');
 
 // User Login
 exports.loginUser = async function (req, res, next) {
     try {
+        // Define schema for request body validation using Yup
+        const schema = yup.object().shape({
+            email: yup.string().email().required(),
+            password: yup.string().required(),
+            role_type: yup.string().required()
+        });
+
+        // Validate request body against the schema
+        await schema.validate(req.body);
+
         const { email, password, role_type } = req.body;
         const user = await User.findOne({ email }).exec();
         if (user) {
-            // Check if the retrieved user's role_type matches the expected role_type
             if (user.role_type !== role_type) {
                 return res.status(400).json({ statusTxt: "error", message: "User role does not match the expected role type!" });
             }
             
-            // Check if the provided password matches the hashed password in the database
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (passwordMatch) {
-                // Update the user's login time
                 user.last_login = new Date();
                 await user.save();
 
-                // Generate JWT token for authentication
                 const tokenPayload = {
-                    _id: user._id, // MongoDB user ID
+                    _id: user._id,
                     email: user.email,
                     name: user.name,
                     role_type: user.role_type
                 };
 
-                // Sign JWT token with a secret key and set expiration time
                 const token = jwt.sign(tokenPayload, 'your_secret_key', { expiresIn: '1h' });
                 
-                // Return success response with token
                 return res.json({ statusTxt: "success", message: "Login successful!", token });
             } else {
-                // Return error response if password is incorrect
-                return res.json({ statusTxt: "error", message: "Wrong password!" });
+                return res.status(401).json({ statusTxt: "error", message: "Wrong password!" }); // 401 for Unauthorized
             }
         } else {
-            // Return error response if user does not exist
-            return res.json({ statusTxt: "error", message: "This Email Is not registered!" });
+            return res.status(404).json({ statusTxt: "error", message: "This Email Is not registered!" }); // 404 for Not Found
         }
     } catch (err) {
-        // Return error response for any internal server error
+        // Yup validation error
+        if (err.name === 'ValidationError') {
+            return res.status(422).json({ statusTxt: "error", message: err.errors.join(', ') }); // 422 for Unprocessable Entity
+        }
         console.error(err);
         return res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
