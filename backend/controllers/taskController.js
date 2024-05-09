@@ -24,6 +24,21 @@ const addTaskSchema = yup.object().shape({
     department: departmentSchema.required() // Department is now required
 });
 
+const editTaskSchema = yup.object().shape({
+    task_id: yup.string().required(),
+    department: yup.array().of(
+        yup.object().shape({
+            dep_id: yup.string().required(),
+            dep_name: yup.string().required(),
+            tag: yup.array().of(yup.string()).required()
+        })
+    ).optional(),
+    task_title: yup.string().required(),
+    task_image: yup.string().required(),
+    target_date: yup.date().required()
+});
+
+
 // API endpoint for adding tasks
 exports.addTask = async function(req, res) {
     try {
@@ -92,6 +107,43 @@ exports.getTask = async function(req, res) {
         // Return the fetched tasks
         res.status(200).json({ message: 'Tasks retrieved successfully', tasks });
     } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+exports.editTask = async function(req, res) {
+    try {
+        // Validate request body
+        const { task_id, department, tag, task_title, task_image, target_date } = await  editTaskSchema.validate(req.body);
+
+        // Construct the update object with provided fields
+        const updateFields = {};
+        if (department) updateFields.department = department;
+        if (tag) updateFields.tag = tag;
+        if (task_title) updateFields.task_title = task_title;
+        if (task_image) updateFields.task_image = task_image;
+        if (target_date) updateFields.target_date = target_date;
+
+        // Find and update the task
+        const updatedTask = await Task.findOneAndUpdate(
+            { task_id }, // Find by _id or task_id
+            { $set: updateFields },
+            { new: true } // Return the updated document
+        );
+
+        // Check if the task exists
+        if (!updatedTask) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        res.status(200).json({ message: 'Task updated successfully', task: updatedTask });
+    } catch (error) {
+        // Handle Yup validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.errors.join(', ') });
+        }
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }

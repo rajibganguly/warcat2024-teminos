@@ -32,5 +32,6 @@ router.put('/edit-meeting', upload.single('file'), authMiddleware, meetingContro
 router.get('/meetings', authMiddleware, meetingController.getAllMeetings);
 router.post('/add-task', upload.array('task_image', 30), taskController.addTask);
 router.get('/tasks', taskController.getTask);
+router.post('/edit-task', upload.single('task_image'), taskController.editTask);
 
 module.exports = router;
