@@ -33,13 +33,13 @@ exports.loginUser = async function (req, res, next) {
                 };
 
                 // Sign JWT token with a secret key and set expiration time
-                const token = jwt.sign(tokenPayload, 'your_secret_key', { expiresIn: '1h' });
+                const token = jwt.sign(tokenPayload, 'your_secret_key', { expiresIn: '2h' });
                 
                 // Return success response with token
-                return res.json({ statusTxt: "success", message: "Login successful!", token });
+                return res.status(200).json({ statusTxt: "success", message: "Login successful!", token });
             } else {
                 // Return error response if password is incorrect
-                return res.json({ statusTxt: "error", message: "Wrong password!" });
+                return res.status(401).json({ statusTxt: "error", message: "Wrong password!" });
             }
         } else {
             // Return error response if user does not exist
