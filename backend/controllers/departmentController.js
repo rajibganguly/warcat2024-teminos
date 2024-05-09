@@ -251,7 +251,7 @@ exports.deleteDepartment = async (req, res) => {
         }
 
         // Return the deleted department
-        res.status(200).json({ statusTxt: "success", message: 'Department deleted successfully' });
+        res.status(200).json({ statusTxt: "success", message: `${deletedDepartment.dept.department_name} Department deleted successfully`});
     } catch (error) {
         console.error(error);
         res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
