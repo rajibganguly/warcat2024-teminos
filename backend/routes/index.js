@@ -39,5 +39,9 @@ router.post('/add-meeting', authMiddleware, meetingController.addMeeting); // De
 router.put('/edit-meeting', authMiddleware, meetingController.editMeeting);
 router.get('/meetings',authMiddleware, meetingController.getAllMeetings);
 router.delete('/deleteDepartment/:departmentId', authMiddleware, departmentController.deleteDepartment);
+router.post('/tasks/:taskId/add-note', taskController.addNoteToTask);
+router.post('/tasks/:taskId/upload-completion-details', upload.single('upload_report'), taskController.uploadCompletionDetails);
+router.get('/task-status-percentages', taskController.getTaskStatusPercentages);
+
 
 module.exports = router;

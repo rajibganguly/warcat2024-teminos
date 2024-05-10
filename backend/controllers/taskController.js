@@ -1,6 +1,6 @@
 const Task = require('../models/task'); // Import Task model
 const yup = require('yup');
-const { v4: uuidv4 } = require('uuid'); 
+const { v4: uuidv4 } = require('uuid');
 // Define Yup validation schema for a single task
 const taskSchema = yup.object().shape({
     taskTitle: yup.string().required(),
@@ -54,10 +54,22 @@ const editSubTaskSchema = yup.object().shape({
 });
 
 
+const noteSchema = yup.object().shape({
+    note_description: yup.string().required(),
+    note_written_by: yup.string().required()
+});
+
+
+// Define Yup schema for completion details validation
+const completionDetailsSchema = yup.object().shape({
+    upload_report: yup.string().required(),
+    description: yup.string().required()
+});
+
 // API endpoint for adding tasks
-exports.addTask = async function(req, res) {
+exports.addTask = async function (req, res) {
     try {
-     
+
         // Validate request body
         const { meetingId, meetingTopic, department } = await addTaskSchema.validate(req.body);
 
@@ -94,7 +106,7 @@ exports.addTask = async function(req, res) {
 
 
 // API endpoint for fetching tasks
-exports.getTask = async function(req, res) {
+exports.getTask = async function (req, res) {
     const { role_type } = req.body; // Assuming role_type is provided in the request body
 
     try {
@@ -128,10 +140,10 @@ exports.getTask = async function(req, res) {
 };
 
 
-exports.editTask = async function(req, res) {
+exports.editTask = async function (req, res) {
     try {
         // Validate request body
-        const { task_id, department, tag, task_title, task_image, target_date } = await  editTaskSchema.validate(req.body);
+        const { task_id, department, tag, task_title, task_image, target_date } = await editTaskSchema.validate(req.body);
 
         // Construct the update object with provided fields
         const updateFields = {};
@@ -166,7 +178,7 @@ exports.editTask = async function(req, res) {
 
 
 // API endpoint for adding a single subtask to a parent task
-exports.addSubTask = async function(req, res) {
+exports.addSubTask = async function (req, res) {
     try {
         // Validate request body
         const { parent_task_id, subtask_title, subtask_target_date, subtask_image } = await addSubTaskSchema.validate(req.body);
@@ -174,7 +186,7 @@ exports.addSubTask = async function(req, res) {
         // Construct subtask object
         const subTask = {
             sub_task_id: uuidv4(), // Generate unique ID for subtask
-            parent_task_id:parent_task_id,
+            parent_task_id: parent_task_id,
             subtask_title,
             subtask_target_date,
             subtask_image
@@ -206,7 +218,7 @@ exports.addSubTask = async function(req, res) {
 };
 
 
-exports.editSubTask = async function(req, res) {
+exports.editSubTask = async function (req, res) {
     try {
         // Validate request body
         const { sub_task_id, subtask_title, subtask_image, subtask_target_date } = await editSubTaskSchema.validate(req.body);
@@ -243,5 +255,134 @@ exports.editSubTask = async function(req, res) {
         }
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+// Controller function to add a note to a task
+exports.addNoteToTask = async (req, res) => {
+    const taskId = req.params.taskId;
+    const { note_description, note_written_by, role_type } = req.body;
+
+    try {
+        // Validate the note data
+        await noteSchema.validate({ note_description, note_written_by });
+
+        // Find the task by ID
+        const task = await Task.findOne({ task_id: taskId });
+
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+
+        // Check if the user role is allowed to add notes based on department tags
+        const tasks = await Task.find({ 'department.tag': role_type });
+        if (!tasks.includes(task)) {
+            return res.status(403).json({ error: 'User role not allowed to add notes' });
+        }
+
+        // If the task is in 'Initiated' status, change it to 'InProgress'
+        if (task.status === 'initiated') {
+            task.status = 'inProgress';
+        }
+
+        // Add the note to the task's note_details array
+        task.note_details.push({ note_description, note_written_by });
+
+        // Save the updated task
+        await task.save();
+
+        return res.status(201).json({ message: 'Note added successfully', task });
+    } catch (error) {
+        // Check if the error is a Yup validation error
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+
+        console.error('Error adding note:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+
+
+// Controller function to upload completion details for a task
+exports.uploadCompletionDetails = async (req, res) => {
+    const taskId = req.params.taskId;
+    const { upload_report, description, role_type } = req.body;
+
+    try {
+        // Validate the completion details
+        await completionDetailsSchema.validate({ upload_report, description });
+
+        // Check if the user role is allowed to add notes based on department tags
+        const tasks = await Task.find({ 'department.tag': role_type });
+        if (!tasks.includes(task)) {
+            return res.status(403).json({ error: 'User role not allowed to add report' });
+        }
+        // Find the task by ID
+        const task = await Task.findOne({ task_id: taskId });
+
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+
+
+        // If the task is in 'Initiated' status, change it to 'InProgress'
+        if (task.status === 'inProgress') {
+            task.status = 'completed';
+        }
+
+        // Add the completion details to the task's complate_upload_task_details array
+        task.complate_upload_task_details.push({ upload_report, description });
+
+        // Save the updated task
+        await task.save();
+
+        return res.status(201).json({ message: 'Completion details uploaded successfully', task });
+    } catch (error) {
+        // Check if the error is a Yup validation error
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+
+        console.error('Error uploading completion details:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+
+
+// Controller function to get task status percentages
+exports.getTaskStatusPercentages = async (req, res) => {
+    try {
+        const keywords = ["completed", "initiated", "inProgress"]; // Specify the keywords you want to check
+
+        // Get total assigned tasks
+        const totalTasks = await Task.countDocuments();
+
+        // Initialize an object to store percentages for each keyword
+        const keywordPercentages = {};
+
+        // Loop through each keyword and calculate its percentage
+        for (const keyword of keywords) {
+            // Count the number of tasks with the current keyword in the "status" field
+            const keywordTasksCount = await Task.countDocuments({ status: keyword });
+
+            // Calculate the percentage of tasks with the current keyword
+            const keywordPercentage = (keywordTasksCount / totalTasks) * 100;
+
+            // Store the percentage in the object
+            keywordPercentages[keyword] = keywordPercentage.toFixed(2) + '%';
+        }
+        // Add the totalAssigned to the response object
+        keywordPercentages.totalAssigned = totalTasks;
+        // Return the percentages in JSON response
+        return res.status(200).json(keywordPercentages);
+    } catch (error) {
+        console.error('Error fetching task status percentages:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
