@@ -66,6 +66,13 @@ const handleUserRegistration = async (dep_name, secretary, headOffice) => {
 // Function to validate user data
 const validateUserData = (userData, userType) => {
     let { name, email, phone_number } = userData;
+
+    let regexForEmail = /^[a-z0-9]+@[a-z]+\.[a-z]{2,3}$/;
+    let regexForPhone = /^\+91[1-9]\d{9}$/;
+
+    let varifiedEmail = regexForEmail.test(email);
+    let varifiedPhone = regexForPhone.test(phone_number);
+
     if (userType === 'head_of_Office') {
         const { designation } = userData;
         if (!designation) {
@@ -75,14 +82,36 @@ const validateUserData = (userData, userType) => {
     if (!name || !email || !phone_number) {
         return `${userType} data is incomplete: name, email, and phone number are required`;
     }
+
+    if (!varifiedEmail) {
+        return `${email} data is not correct`;
+    }
+
+    if (!varifiedPhone) {
+        return `${phone_number} number is not correct`;
+    }
     // You can add additional validation rules here if needed
     return null; // Data is valid
 };
 
 
-// User Registration
+// User Registration//
 exports.registerUserWithDepartment = async function (req, res, next) {
     const { secretary, headOffice, dep_name } = req.body;
+
+    // Validate Secretary data
+    const secretaryValidation = validateUserData(secretary, "secretary");
+    if (secretaryValidation) {
+        throw new Error(secretaryValidation);
+    }
+
+    // Validate Head of Office data
+    const headOfficeValidation = validateUserData(headOffice, "head_of_Office");
+    if (headOfficeValidation) {
+        throw new Error(headOfficeValidation);
+    }
+
+    
     try {
         // Check if department exists
         const existingDepartment = await Department.findOne({ department_name: dep_name });
@@ -269,7 +298,7 @@ async function populateDepartmentDetails(departments) {
 
 
 
-// Controller function to handle GET request for delete department
+// Controller function to handle delete request for delete department [ Not using ]
 exports.deleteDepartment = async (req, res) => {
     const departmentId = req.params.departmentId;  
     try {
