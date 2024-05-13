@@ -75,7 +75,7 @@ exports.editMeeting = async (req, res) => {
 
 
 exports.getAllMeetings = async (req, res) => {
-    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+    const { userId, role_type } = req.query; // Extract userId and role_type from request body
 
     try {
         if (role_type === 'admin') {

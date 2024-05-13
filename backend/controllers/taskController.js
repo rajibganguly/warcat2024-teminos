@@ -108,7 +108,7 @@ exports.addTask = async function (req, res) {
 
 // API endpoint for fetching tasks
 exports.getTask = async function (req, res) {
-    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+    const { userId, role_type } = req.query; // Extract userId and role_type from request body
 
     try {
         if (role_type === 'admin') {
@@ -364,7 +364,7 @@ exports.uploadCompletionDetails = async (req, res) => {
 
 // Controller function to get task status percentages
 exports.getTaskStatusPercentages = async (req, res) => {
-    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+    const { userId, role_type } = req.query; // Extract userId and role_type from request body
 
     try {
         if (role_type === 'admin') {

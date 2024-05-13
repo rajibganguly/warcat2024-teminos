@@ -223,7 +223,7 @@ async function registerUser(userData) {
 
 // Controller function to handle GET request for all department details
 exports.getAllDepartments = async (req, res) => {
-    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+    const { userId, role_type } = req.query; // Extract userId and role_type from request body
 
     try {
         if (role_type === 'admin') {

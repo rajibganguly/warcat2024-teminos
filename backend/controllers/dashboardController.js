@@ -4,7 +4,7 @@ const Meeting = require('../models/meeting');
 const Task = require('../models/task'); 
 
 exports.getStatistics = async (req, res) => {
-    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+    const { userId, role_type } = req.query; // Extract userId and role_type from request body
 
     try {
         if (role_type === 'admin') {
