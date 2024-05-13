@@ -5,6 +5,7 @@ const departmentController = require('../controllers/departmentController');
 const authMiddleware = require('../middleware/authMiddleware');
 const meetingController = require('../controllers/meetingController');
 const taskController = require('../controllers/taskController');
+const { getStatistics } = require('../controllers/dashboardController');
 const multer = require('multer');
 
 const storage = multer.diskStorage({
@@ -42,7 +43,9 @@ router.delete('/deleteDepartment/:departmentId', authMiddleware, departmentContr
 router.post('/tasks/:taskId/add-note',authMiddleware, taskController.addNoteToTask);
 router.post('/tasks/:taskId/upload-completion-details', upload.single('upload_report'),authMiddleware, taskController.uploadCompletionDetails);
 router.get('/task-status-percentages',authMiddleware,taskController.getTaskStatusPercentages);
-router.put('/admin_verified', taskController.setAdminVerified);
+router.put('/admin_verified', authMiddleware, taskController.setAdminVerified);
+router.get('/statistics', authMiddleware, getStatistics);
+
 
 
 module.exports = router;
