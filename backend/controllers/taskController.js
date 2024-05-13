@@ -424,3 +424,37 @@ async function calculateTaskStatusPercentages(res) {
     }
 }
 
+
+exports.setAdminVerified = async (req, res) => {
+    const { task_id, userId } = req.body;
+
+    try {
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if the user's role_type is "admin"
+        if (user.role_type === "admin") {
+            // Find the task by taskId
+            const task = await Task.findOne({ task_id });
+
+            if (!task) {
+                return res.status(404).json({ error: 'Task not found' });
+            }
+
+            // Update the task's admin_verified status to true
+            task.admin_verified = true;
+            await task.save();
+
+            return res.status(200).json({ message: 'Admin verification successful', taskId: task._id });
+        } else {
+            return res.status(403).json({ error: 'User is not an admin' });
+        }
+    } catch (error) {
+        console.error('Error updating admin verification status:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};

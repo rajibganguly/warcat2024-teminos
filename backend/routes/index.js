@@ -41,7 +41,8 @@ router.get('/meetings',authMiddleware, meetingController.getAllMeetings);
 router.delete('/deleteDepartment/:departmentId', authMiddleware, departmentController.deleteDepartment);
 router.post('/tasks/:taskId/add-note',authMiddleware, taskController.addNoteToTask);
 router.post('/tasks/:taskId/upload-completion-details', upload.single('upload_report'),authMiddleware, taskController.uploadCompletionDetails);
-router.get('/task-status-percentages',taskController.getTaskStatusPercentages);
+router.get('/task-status-percentages',authMiddleware,taskController.getTaskStatusPercentages);
+router.put('/admin_verified', taskController.setAdminVerified);
 
 
 module.exports = router;
