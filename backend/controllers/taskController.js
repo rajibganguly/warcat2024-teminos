@@ -1,5 +1,6 @@
 const Task = require('../models/task'); // Import Task model
 const yup = require('yup');
+const User = require('../models/user');
 const { v4: uuidv4 } = require('uuid');
 // Define Yup validation schema for a single task
 const taskSchema = yup.object().shape({
@@ -107,32 +108,38 @@ exports.addTask = async function (req, res) {
 
 // API endpoint for fetching tasks
 exports.getTask = async function (req, res) {
-    const { role_type } = req.body; // Assuming role_type is provided in the request body
+    const { userId, role_type } = req.body; // Extract userId and role_type from request body
 
     try {
-        let tasks = [];
-
         if (role_type === 'admin') {
-            // Fetch all tasks
-            tasks = await Task.find();
-        } else if (role_type === 'secretary') {
-            // Fetch tasks based on 'secretary' tag within the department
-            tasks = await Task.find({ 'department.tag': 'secretary' });
-        }
-        else if (role_type === 'head_of_office') {
-            // Fetch tasks based on 'secretary' tag within the department
-            tasks = await Task.find({ 'department.tag': 'head_of_office' });
-        } else {
-            return res.status(400).json({ message: 'Invalid role type' });
+            // If role_type is 'admin', fetch all tasks
+            const tasks = await Task.find();
+            return res.status(200).json({ message: 'All tasks retrieved successfully', tasks });
         }
 
-        // Check if tasks were found
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the user role_type is 'head_of_office' or 'secretary'
+        if (user.role_type !== role_type && user.role_type !== role_type) {
+            return res.status(403).json({ message: 'User is not authorized to access tasks' });
+        }
+
+        // Get the department IDs of the user
+        const depIds = user.departments.map(department => department.dep_id);
+
+        // Find tasks associated with the user's departments
+        const tasks = await Task.find({ 'department.dep_id': { $in: depIds } });
+
         if (!tasks || tasks.length === 0) {
-            return res.status(404).json({ message: 'No tasks found' });
+            return res.status(404).json({ message: 'No tasks found for the user' });
         }
 
-        // Return the fetched tasks
-        res.status(200).json({ message: 'Tasks retrieved successfully', tasks });
+        return res.status(200).json({ message: 'Tasks retrieved successfully', tasks });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -357,6 +364,36 @@ exports.uploadCompletionDetails = async (req, res) => {
 
 // Controller function to get task status percentages
 exports.getTaskStatusPercentages = async (req, res) => {
+    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+
+    try {
+        if (role_type === 'admin') {
+            // If role_type is 'admin', proceed with calculating task status percentages
+            return calculateTaskStatusPercentages(res);
+        }
+
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if the user role_type is 'head_of_office' or 'secretary'
+        if (user.role_type !== role_type && user.role_type !== role_type) {
+            return res.status(403).json({ error: 'User is not authorized to access task status percentages' });
+        }
+
+        // Continue with calculating task status percentages
+        return calculateTaskStatusPercentages(res);
+    } catch (error) {
+        console.error('Error fetching task status percentages:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Function to calculate task status percentages
+async function calculateTaskStatusPercentages(res) {
     try {
         const keywords = ["completed", "initiated", "inProgress"]; // Specify the keywords you want to check
 
@@ -385,4 +422,5 @@ exports.getTaskStatusPercentages = async (req, res) => {
         console.error('Error fetching task status percentages:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
-};
+}
+

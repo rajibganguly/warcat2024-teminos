@@ -194,48 +194,79 @@ async function registerUser(userData) {
 
 // Controller function to handle GET request for all department details
 exports.getAllDepartments = async (req, res) => {
+    const { userId, role_type } = req.body; // Extract userId and role_type from request body
+
     try {
-        // Find all departments
-        const departments = await Department.find();
+        if (role_type === 'admin') {
+            // If role_type is 'admin', fetch all departments
+            const departments = await Department.find();
+            const departmentsWithDetails = await populateDepartmentDetails(departments);
+            return res.status(200).json(departmentsWithDetails);
+        }
 
-        // Create an array to store department details along with Secretary's and Head of Office's details
-        const departmentsWithDetails = await Promise.all(departments.map(async (department) => {
-            
-            let getId = 'warcat-' + department._id;
+        // Find the user by userId
+        const user = await User.findById(userId);
 
-            const secretary = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'secretary' });
+        if (!user) {
+            return res.status(404).json({ statusTxt: "error", message: 'User not found' });
+        }
 
-            // Find Head of Office's details
-            const headOfOffice = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'head_of_Office' });
+        // Check if the user role_type is 'head_of_office' or 'secretary'
+        if (user.role_type !== role_type && user.role_type !== role_type) {
+            return res.status(403).json({ statusTxt: "error", message: 'User is not authorized to access departments' });
+        }
 
-            // Return department details along with Secretary's and Head of Office's details
-            return {
-                id: getId,
-                department: department,
-                secretary: secretary ? {
-                    email: secretary.email,
-                    name: secretary.name,
-                    role_type: secretary.role_type,
-                    designation: secretary.designation,
-                    phone_number: secretary.phone_number
-                } : null,
-                headOffice: headOfOffice ? {
-                    email: headOfOffice.email,
-                    name: headOfOffice.name,
-                    role_type: headOfOffice.role_type,
-                    designation: headOfOffice.designation,
-                    phone_number: headOfOffice.phone_number
-                } : null
-            };
-        }));
+        // Get the department IDs of the user
+        const depIds = user.departments.map(department => department.dep_id);
 
-        // Return the list of departments with Secretary's and Head of Office's details
-        res.json(departmentsWithDetails);
+        // Find departments associated with the user's departments
+        const departments = await Department.find({ _id: { $in: depIds } });
+        const departmentsWithDetails = await populateDepartmentDetails(departments);
+
+        if (!departments || departments.length === 0) {
+            return res.status(404).json({ statusTxt: "error", message: 'No departments found for the user' });
+        }
+
+        return res.status(200).json(departmentsWithDetails);
     } catch (error) {
         console.error(error);
         res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
     }
 };
+
+// Function to populate department details with Secretary's and Head of Office's details
+async function populateDepartmentDetails(departments) {
+    // Array to store promises for populating department details
+    const promises = departments.map(async (department) => {
+        let getId = 'warcat-' + department._id;
+
+        const secretary = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'secretary' });
+        const headOfOffice = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'head_of_Office' });
+
+        return {
+            id: getId,
+            department: department,
+            secretary: secretary ? {
+                email: secretary.email,
+                name: secretary.name,
+                role_type: secretary.role_type,
+                designation: secretary.designation,
+                phone_number: secretary.phone_number
+            } : null,
+            headOffice: headOfOffice ? {
+                email: headOfOffice.email,
+                name: headOfOffice.name,
+                role_type: headOfOffice.role_type,
+                designation: headOfOffice.designation,
+                phone_number: headOfOffice.phone_number
+            } : null
+        };
+    });
+
+    // Resolve all promises and return the response
+    return await Promise.all(promises);
+}
+
 
 
 // Controller function to handle GET request for delete department
