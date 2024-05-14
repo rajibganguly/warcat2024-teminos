@@ -401,7 +401,7 @@ async function calculateTaskStatusPercentages(res) {
         const totalTasks = await Task.countDocuments();
 
         // Initialize an object to store percentages for each keyword
-        const keywordPercentages = {};
+        const keywordData = {};
 
         // Loop through each keyword and calculate its percentage
         for (const keyword of keywords) {
@@ -412,12 +412,15 @@ async function calculateTaskStatusPercentages(res) {
             const keywordPercentage = (keywordTasksCount / totalTasks) * 100;
 
             // Store the percentage in the object
-            keywordPercentages[keyword] = keywordPercentage.toFixed(2) + '%';
+            keywordData[keyword] = {
+                count: keywordTasksCount,
+                percentage: keywordPercentage.toFixed(2) + '%'
+            };
         }
         // Add the totalAssigned to the response object
-        keywordPercentages.totalAssigned = totalTasks;
+        keywordData.totalAssigned = totalTasks;
         // Return the percentages in JSON response
-        return res.status(200).json(keywordPercentages);
+        return res.status(200).json(keywordData);
     } catch (error) {
         console.error('Error fetching task status percentages:', error);
         return res.status(500).json({ error: 'Internal server error' });
