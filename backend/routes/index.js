@@ -7,7 +7,7 @@ const meetingController = require('../controllers/meetingController');
 const taskController = require('../controllers/taskController');
 const { getStatistics } = require('../controllers/dashboardController');
 const multer = require('multer');
-
+const cors = require('cors');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     return cb(null, './uploads'); // Corrected the destination path
@@ -20,6 +20,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Enable CORS for all routes
+router.use(cors());
 // Define routes
 router.post('/register-user-with-department',authMiddleware, departmentController.registerUserWithDepartment);
 router.put('/edit-register-user-with-department', authMiddleware, departmentController.editRegisterUserWithDepartment);
