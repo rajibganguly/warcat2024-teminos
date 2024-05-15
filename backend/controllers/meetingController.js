@@ -2,6 +2,7 @@ const Meeting = require('../models/meeting');
 const { v4: uuidv4 } = require('uuid'); // Importing uuidv4 from uuid package
 const Department = require('../models/department');
 const User = require('../models/user');
+const { sendMeetingAddedEmail } = require('../service/emailService');
 
 exports.addMeeting = async (req, res) => {
     try {
@@ -26,7 +27,15 @@ exports.addMeeting = async (req, res) => {
 
         // Save the meeting to the database
         await newMeeting.save();
+        // Find users belonging to the specified departments
+        const usersInDepartments = await User.find({ 'departments.dep_id': { $in: departmentIds } });
 
+        // Filter users based on their role types matching any of the tags specified in the tag array
+        const usersMatchingTags = usersInDepartments.filter(user => tag.includes(user.role_type));
+console.log(usersMatchingTags)
+        // Get the email ids of users who match the role_type
+        const userEmails = usersMatchingTags.map(user => user.email);
+        sendMeetingAddedEmail(userEmails, newMeeting)
         // Return success response
         res.status(201).json({ statusTxt: "success", message: 'Meeting added successfully' });
     } catch (error) {

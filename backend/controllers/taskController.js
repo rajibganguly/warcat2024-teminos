@@ -2,6 +2,8 @@ const Task = require('../models/task'); // Import Task model
 const yup = require('yup');
 const User = require('../models/user');
 const { v4: uuidv4 } = require('uuid');
+const { sendTaskAddedEmail } = require('../service/emailService');
+const ObjectId = require('mongodb').ObjectId;
 // Define Yup validation schema for a single task
 const taskSchema = yup.object().shape({
     taskTitle: yup.string().required(),
@@ -89,11 +91,23 @@ exports.addTask = async function (req, res) {
                 task_image: taskData.uploadImage,
                 target_date: taskData.targetDate
             }))
+
         );
 
         // Create and save all tasks concurrently
         const newTasks = await Task.insertMany(allTasks);
-
+        // Find users based on the dep_id
+        const depId = department.map(dep => dep.dep_id);
+        const tagValues = department.map(dep => dep.tag);
+        const flattenedTagValues = tagValues.flat();
+        const users = await User.find({ 'departments.dep_id': { $in: depId } });
+        // Filter users based on role_type matching any of the tag values
+        const filteredUsers = users.filter(user =>
+            flattenedTagValues.includes(user.role_type)
+        );
+        // Extract email addresses of filtered users
+        const userEmails = filteredUsers.map(user => user.email);
+        sendTaskAddedEmail(userEmails)
         res.status(201).json({ message: 'Tasks added successfully', tasks: newTasks });
     } catch (error) {
         // Handle Yup validation errors

@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send registration email
-exports.sendRegistrationEmail = async (email, password,dpartment_name,role_type) => {
+exports.sendRegistrationEmail = async (email, password, dpartment_name, role_type) => {
     try {
         // Send mail with defined transport object
         let info = await transporter.sendMail({
@@ -29,3 +29,49 @@ exports.sendRegistrationEmail = async (email, password,dpartment_name,role_type)
     }
 };
 
+exports.sendMeetingAddedEmail = async (emails, meetingDetails) => {
+    try {
+        // Send mail with defined transport object
+        if (emails) {
+            let info = await transporter.sendMail({
+                from: '"Warcat" <admin@warcat.com>',
+                to: emails, // Array of receiver's email addresses
+                subject: 'Meeting Added Successfully',
+                text: `Dear User, 
+                Your meeting has been added successfully. 
+                Meeting Details:
+                Topic: ${meetingDetails.meetingTopic}
+                Date: ${meetingDetails.selectDate}
+                Time: ${meetingDetails.selectTime}`
+                // Department IDs: ${meetingDetails.departmentIds.join(', ')}
+                // Tags: ${meetingDetails.tag.join(', ')}
+                // Image URL: ${meetingDetails.imageUrl}`
+            });
+        }
+        console.log('Email sent: ', info.messageId);
+    } catch (error) {
+        console.error('Error sending email: ', error);
+        throw new Error('Error sending email');
+    }
+};
+
+exports.sendTaskAddedEmail = async (emails) => {
+    try {
+        // Send mail with defined transport object
+        if (emails && emails.length > 0) {
+            let info = await transporter.sendMail({
+                from: '"Warcat" <admin@warcat.com>',
+                to: emails.join(', '), // Join the array of receiver's email addresses
+                subject: 'Task Added Successfully',
+                text: `Dear User, 
+                Your task has been added successfully.`
+                // Task Image: ${taskDetails.task_image}`
+            });
+        } else {
+            console.log('No email addresses provided to send task added email.');
+        }
+    } catch (error) {
+        console.error('Error sending email: ', error);
+        throw new Error('Error sending email');
+    }
+};

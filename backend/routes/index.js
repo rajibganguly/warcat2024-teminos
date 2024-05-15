@@ -30,10 +30,10 @@ router.post('/login', userController.loginUser);
 router.get('/profile', authMiddleware, userController.getProfile);
 router.get('/logout', userController.logoutUser); // Added authMiddleware here
 router.post('/reset-password', userController.resetPassword); // Added authMiddleware here
-router.post('/add-meeting', upload.single('file'),authMiddleware, meetingController.addMeeting); // Define route for adding a meeting
+router.post('/add-meeting', upload.single('file'), meetingController.addMeeting); // Define route for adding a meeting
 router.put('/edit-meeting', upload.single('file'), authMiddleware, meetingController.editMeeting);
 router.get('/meetings', meetingController.getAllMeetings);
-router.post('/add-task', upload.array('task_image', 30),authMiddleware, taskController.addTask);
+router.post('/add-task', upload.array('task_image', 30), taskController.addTask);
 router.get('/tasks', authMiddleware, taskController.getTask);
 router.post('/edit-task', upload.single('task_image'), authMiddleware, taskController.editTask);
 router.post('/add-sub-task', upload.single('subtask_image'),authMiddleware, taskController.addSubTask);
