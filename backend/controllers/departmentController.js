@@ -141,12 +141,12 @@ exports.editRegisterUserWithDepartment = async function (req, res, next) {
             return res.status(404).json({ statusTxt: "error", message: "Department not found." });
         }
 
-        // // Check if the department name already exists
-        // const existingDepartment = await Department.findOne({ department_name: dep_name });
-        // if (existingDepartment && existingDepartment._id.toString() !== department._id.toString()) {
-        //     // Department with the provided name already exists, send error message
-        //     return res.status(400).json({ statusTxt: "error", message: 'Department name already exists' });
-        // }
+        // Check if the department name already exists
+        const existingDepartment = await Department.findOne({ department_name: dep_name });
+        if (existingDepartment && existingDepartment._id.toString() !== department._id.toString()) {
+            // Department with the provided name already exists, send error message
+            return res.status(400).json({ statusTxt: "error", message: 'Department name already exists' });
+        }
 
         // Find users with the department ID
         const users = await User.find({ departments: { $elemMatch: { dep_id: department._id } } });
