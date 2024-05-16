@@ -111,7 +111,7 @@ exports.registerUserWithDepartment = async function (req, res, next) {
         throw new Error(headOfficeValidation);
     }
 
-    
+
     try {
         // Check if department exists
         const existingDepartment = await Department.findOne({ department_name: dep_name });
@@ -133,12 +133,19 @@ exports.registerUserWithDepartment = async function (req, res, next) {
 
 // Edit User Registration API
 exports.editRegisterUserWithDepartment = async function (req, res, next) {
-    const { secretary, headOffice, dep_name } = req.body;
+    const { secretary, headOffice, department_id } = req.body;
     try {
         // Find the department
-        const department = await Department.findOne({ department_name: dep_name });
+        const department = await Department.findById(department_id);
         if (!department) {
             return res.status(404).json({ statusTxt: "error", message: "Department not found." });
+        }
+
+        // Check if the department name already exists
+        const existingDepartment = await Department.findOne({ department_name: dep_name });
+        if (existingDepartment && existingDepartment._id.toString() !== department._id.toString()) {
+            // Department with the provided name already exists, send error message
+            return res.status(400).json({ statusTxt: "error", message: 'Department name already exists' });
         }
 
         // Find users with the department ID
@@ -300,18 +307,18 @@ async function populateDepartmentDetails(departments) {
 
 // Controller function to handle delete request for delete department [ Not using ]
 exports.deleteDepartment = async (req, res) => {
-    const departmentId = req.params.departmentId;  
+    const departmentId = req.params.departmentId;
     try {
-        
+
         // Find the department by ID and delete it
         const deletedDepartment = await Department.findByIdAndDelete(departmentId);
-        
+
         if (!deletedDepartment) {
             return res.status(404).json({ statusTxt: "error", message: 'Department not found' });
         }
 
         // Return the deleted department
-        res.status(200).json({ statusTxt: "success", message: `${deletedDepartment.dept.department_name} Department deleted successfully`});
+        res.status(200).json({ statusTxt: "success", message: `${deletedDepartment.dept.department_name} Department deleted successfully` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ statusTxt: "error", message: 'An error occurred while processing your request' });
