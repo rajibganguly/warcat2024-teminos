@@ -133,7 +133,7 @@ exports.registerUserWithDepartment = async function (req, res, next) {
 
 // Edit User Registration API
 exports.editRegisterUserWithDepartment = async function (req, res, next) {
-    const { secretary, headOffice, department_id } = req.body;
+    const { secretary, headOffice, department_id, dep_name } = req.body;
     try {
         // Find the department
         const department = await Department.findById(department_id);
