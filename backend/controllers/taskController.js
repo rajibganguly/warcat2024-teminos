@@ -428,7 +428,7 @@ async function calculateTaskStatusPercentages(res) {
             // Store the percentage in the object
             keywordData[keyword] = {
                 count: keywordTasksCount,
-                percentage: keywordPercentage.toFixed(2) + '%'
+                percentage: keywordPercentage.toFixed(2)
             };
         }
         // Add the totalAssigned to the response object
