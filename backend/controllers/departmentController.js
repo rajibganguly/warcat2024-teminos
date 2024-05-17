@@ -190,12 +190,17 @@ const generateRandomPassword = () => {
 
 async function registerUser(userData) {
     const { email, name, role_type, designation, phone_number, department } = userData;
-    console.log(department, 'department ')
     // Find the user with the provided email
     let existingUser = await User.findOne({ email });
 
     // If user with the same email exists, update their departments
     if (existingUser) {
+
+        if (existingUser.name) existingUser.name = name;
+        if (existingUser.phone_number) existingUser.phone_number = phone_number;
+        if (existingUser.designation) existingUser.designation = designation;
+        await existingUser.save();
+
         // Ensure that the department to be added is not already present in the user's departments
         if (!existingUser.departments.some(dep => dep.dep_id.toString() === department._id.toString())) {
             existingUser.departments.push({ dep_id: department._id, dep_name: department.department_name });
