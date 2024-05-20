@@ -67,7 +67,7 @@ const handleUserRegistration = async (dep_name, secretary, headOffice) => {
 const validateUserData = (userData, userType) => {
     let { name, email, phone_number } = userData;
 
-    let regexForEmail = /^[a-z0-9]+@[a-z]+\.[a-z]{2,3}$/;
+    let regexForEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     let regexForPhone = /^\+91[1-9]\d{9}$/;
 
     let varifiedEmail = regexForEmail.test(email);
@@ -100,16 +100,16 @@ exports.registerUserWithDepartment = async function (req, res, next) {
     const { secretary, headOffice, dep_name } = req.body;
 
     // Validate Secretary data
-    const secretaryValidation = validateUserData(secretary, "secretary");
-    if (secretaryValidation) {
-        throw new Error(secretaryValidation);
-    }
+    //const secretaryValidation = validateUserData(secretary, "secretary");
+    // if (secretaryValidation) {
+    //     throw new Error(secretaryValidation);
+    // }
 
     // Validate Head of Office data
-    const headOfficeValidation = validateUserData(headOffice, "head_of_Office");
-    if (headOfficeValidation) {
-        throw new Error(headOfficeValidation);
-    }
+    //const headOfficeValidation = validateUserData(headOffice, "head_of_Office");
+    // if (headOfficeValidation) {
+    //     throw new Error(headOfficeValidation);
+    // }
 
 
     try {
