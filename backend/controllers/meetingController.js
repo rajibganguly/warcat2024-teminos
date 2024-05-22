@@ -32,7 +32,6 @@ exports.addMeeting = async (req, res) => {
 
         // Filter users based on their role types matching any of the tags specified in the tag array
         const usersMatchingTags = usersInDepartments.filter(user => tag.includes(user.role_type));
-console.log(usersMatchingTags)
         // Get the email ids of users who match the role_type
         const userEmails = usersMatchingTags.map(user => user.email);
         sendMeetingAddedEmail(userEmails, newMeeting)
@@ -110,7 +109,10 @@ exports.getAllMeetings = async (req, res) => {
         const depIds = user.departments.map(department => department.dep_id);
 
         // Find meetings associated with the user's departments
-        const meetings = await Meeting.find({ departmentIds: { $in: depIds } });
+        const meetings = await Meeting.find({ 
+            departmentIds: { $in: depIds },
+            tag: { $in: [role_type] }
+        });
         const meetingsWithDepartmentNames = await populateDepartmentNames(meetings);
 
         if (!meetings || meetings.length === 0) {

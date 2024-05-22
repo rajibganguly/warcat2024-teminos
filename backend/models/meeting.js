@@ -5,7 +5,7 @@ const yup = require('yup');
 const meetingSchemaValidation = yup.object().shape({
     meetingId: yup.string().required(),
     departmentIds: yup.array().of(yup.string().required()),
-    tag: yup.string().required(),
+    tag: yup.array().of(yup.string().required()).required(),
     meetingTopic: yup.string().required(),
     selectDate: yup.date().required(),
     selectTime: yup.string().required(),
@@ -22,7 +22,7 @@ const meetingSchema = new mongoose.Schema({
         ref: 'Department'
     }],
     tag: {
-        type: String,
+        type: [String], // Updated to define tag as an array of strings
         required: true
     },
     meetingTopic: {

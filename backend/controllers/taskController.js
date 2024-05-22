@@ -146,8 +146,12 @@ exports.getTask = async function (req, res) {
         // Get the department IDs of the user
         const depIds = user.departments.map(department => department.dep_id);
 
-        // Find tasks associated with the user's departments
-        const tasks = await Task.find({ 'department.dep_id': { $in: depIds } });
+        // Find tasks associated with the user's departments where tag contains specific elements
+        const tasks = await Task.find({
+            'department.dep_id': { $in: depIds },
+            'department.tag': { $elemMatch: { $in: [role_type] } }
+        });
+
 
         if (!tasks || tasks.length === 0) {
             return res.status(404).json({ message: 'No tasks found for the user' });
