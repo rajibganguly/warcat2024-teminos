@@ -16,7 +16,8 @@ const taskSchema = new mongoose.Schema({
         parent_task_id: String,
         subtask_title: String,
         subtask_image: String,
-        subtask_target_date: Date
+        target_date: Date,
+        timestamp: { type: Date, default: Date.now }
     }],
     status: { type: String, default: 'initiated' },
     admin_verified: { type: Number, default: 0 },

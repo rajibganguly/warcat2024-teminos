@@ -208,12 +208,13 @@ exports.addSubTask = async function (req, res) {
         // Validate request body
         const { parent_task_id, subtask_title, subtask_target_date, subtask_image } = await addSubTaskSchema.validate(req.body);
 
+        const target_date = subtask_target_date;
         // Construct subtask object
         const subTask = {
             sub_task_id: uuidv4(), // Generate unique ID for subtask
             parent_task_id: parent_task_id,
             subtask_title,
-            subtask_target_date,
+            target_date,
             subtask_image
         };
 
@@ -248,6 +249,7 @@ exports.editSubTask = async function (req, res) {
         // Validate request body
         const { sub_task_id, subtask_title, subtask_image, subtask_target_date } = await editSubTaskSchema.validate(req.body);
 
+        const target_date = subtask_target_date;
         // Find the task containing the subtask
         const task = await Task.findOne({ 'sub_task.sub_task_id': sub_task_id });
 
@@ -267,7 +269,7 @@ exports.editSubTask = async function (req, res) {
         // Update the subtask details
         if (subtask_title) subTask.subtask_title = subtask_title;
         if (subtask_image) subTask.subtask_image = subtask_image;
-        if (subtask_target_date) subTask.subtask_target_date = subtask_target_date;
+        if (subtask_target_date) subTask.target_date = subtask_target_date;
 
         // Save the updated task
         await task.save();
