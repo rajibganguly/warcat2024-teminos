@@ -301,7 +301,8 @@ exports.addNoteToTask = async (req, res) => {
         }
 
         // Check if the user role is allowed to add notes based on department tags
-        const tasks = await Task.find({ 'department.tag': role_type });
+        const tasks = await Task.find({ 'department.tag': { $in: [role_type] } });
+
         if (!tasks.includes(task)) {
             return res.status(403).json({ error: 'User role not allowed to add notes' });
         }
