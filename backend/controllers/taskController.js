@@ -346,32 +346,33 @@ exports.uploadCompletionDetails = async (req, res) => {
     try {
         // Validate the completion details
         await completionDetailsSchema.validate({ upload_report, description });
-
-        // Check if the user role is allowed to add notes based on department tags
-        const tasks = await Task.find({ 'department.tag': role_type });
-        if (!tasks.includes(task)) {
-            return res.status(403).json({ error: 'User role not allowed to add report' });
-        }
-        // Find the task by ID
-        const task = await Task.findOne({ task_id: taskId });
-
-        if (!task) {
+        const taskData = await Task.findOne({ task_id: taskId });
+        if (!taskData) {
             return res.status(404).json({ error: 'Task not found' });
         }
 
+        // Check if the user role is allowed to add notes based on department tags
+        const isAllowed = await Task.findOne({
+            task_id: taskId,
+            'department.tag': { $in: role_type }
+        });
+
+        if (!isAllowed) {
+            return res.status(403).json({ error: 'User role not allowed to add notes' });
+        }
 
         // If the task is in 'Initiated' status, change it to 'InProgress'
-        if (task.status === 'inProgress') {
-            task.status = 'completed';
+        if (taskData.status === 'inProgress') {
+            taskData.status = 'completed';
         }
 
         // Add the completion details to the task's complate_upload_task_details array
-        task.complate_upload_task_details.push({ upload_report, description });
+        taskData.complate_upload_task_details.push({ upload_report, description });
 
         // Save the updated task
-        await task.save();
+        await taskData.save();
 
-        return res.status(201).json({ message: 'Completion details uploaded successfully', task });
+        return res.status(201).json({ message: 'Completion details uploaded successfully', taskData });
     } catch (error) {
         // Check if the error is a Yup validation error
         if (error.name === 'ValidationError') {
