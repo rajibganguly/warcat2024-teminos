@@ -10,6 +10,7 @@ const taskSchema = new mongoose.Schema({
     }],
     task_title: String,
     task_image: String,
+    meetingId: String,
     target_date: Date,
     sub_task: [{
         sub_task_id :String,
