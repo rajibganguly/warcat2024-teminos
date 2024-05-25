@@ -149,7 +149,8 @@ exports.getTask = async function (req, res) {
         // Find tasks associated with the user's departments where tag contains specific elements
         const tasks = await Task.find({
             'department.dep_id': { $in: depIds },
-            'department.tag': { $elemMatch: { $in: [role_type] } }
+            'department.tag': { $regex: new RegExp(role_type, 'i') }
+            
         });
 
 

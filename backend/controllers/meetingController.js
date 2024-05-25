@@ -111,9 +111,11 @@ exports.getAllMeetings = async (req, res) => {
         // Find meetings associated with the user's departments
         const meetings = await Meeting.find({ 
             departmentIds: { $in: depIds },
-            tag: { $in: [role_type] }
+            tag: { $regex: new RegExp(role_type, 'i') }
+            
         });
-        console.log(meetings)
+        
+        console.log(role_type)
         const meetingsWithDepartmentNames = await populateDepartmentNames(meetings);
 
         if (!meetings || meetings.length === 0) {

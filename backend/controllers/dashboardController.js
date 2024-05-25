@@ -43,19 +43,19 @@ exports.getStatistics = async (req, res) => {
         // Find completed tasks associated with the user's departments
         const completedTasks = await Task.countDocuments({ 
             'department.dep_id': { $in: depIds },
-            'department.tag': { $elemMatch: { $in: [role_type] } },
+            'department.tag': { $regex: new RegExp(role_type, 'i') },
             status: 'completed'
         });
         // Find total meetings associated with the user's departments
         const totalMeetings = await Meeting.countDocuments({
             departmentIds: { $in: depIds },
-            tag: { $in: [role_type] }
+            tag: { $regex: new RegExp(role_type, 'i') }
         });
 
         // Find assigned tasks associated with the user's departments
         const assignedTasks = await Task.countDocuments({
             'department.dep_id': { $in: depIds },
-            'department.tag': { $elemMatch: { $in: [role_type] } }
+            'department.tag': { $regex: new RegExp(role_type, 'i') }
         });
 
 
