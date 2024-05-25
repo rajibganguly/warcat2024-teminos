@@ -113,6 +113,7 @@ exports.getAllMeetings = async (req, res) => {
             departmentIds: { $in: depIds },
             tag: { $in: [role_type] }
         });
+        console.log(meetings)
         const meetingsWithDepartmentNames = await populateDepartmentNames(meetings);
 
         if (!meetings || meetings.length === 0) {

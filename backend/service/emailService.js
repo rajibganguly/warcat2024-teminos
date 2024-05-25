@@ -34,7 +34,7 @@ exports.sendMeetingAddedEmail = async (emails, meetingDetails) => {
         // Send mail with defined transport object
         if (emails) {
             let info = await transporter.sendMail({
-                from: '"Warcat" <admin@warcat.com>',
+                from: 'Warcat',
                 to: emails, // Array of receiver's email addresses
                 subject: 'Meeting Added Successfully',
                 text: `Dear User, 
@@ -60,7 +60,7 @@ exports.sendTaskAddedEmail = async (emails) => {
         // Send mail with defined transport object
         if (emails && emails.length > 0) {
             let info = await transporter.sendMail({
-                from: '"Warcat" <admin@warcat.com>',
+                from: 'Warcat',
                 to: emails.join(', '), // Join the array of receiver's email addresses
                 subject: 'Task Added Successfully',
                 text: `Dear User, 
