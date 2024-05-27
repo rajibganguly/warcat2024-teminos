@@ -26,6 +26,7 @@ const taskSchema = new mongoose.Schema({
     note_details :[{ 
         note_description :String,
         note_written_by: String,
+        timestamp: { type: Date, default: Date.now }
     }],
     complate_upload_task_details :[{
         upload_report :String,
