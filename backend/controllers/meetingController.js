@@ -29,12 +29,15 @@ exports.addMeeting = async (req, res) => {
         await newMeeting.save();
         // Find users belonging to the specified departments
         const usersInDepartments = await User.find({ 'departments.dep_id': { $in: departmentIds } });
-
+        const userEmails = [];
         // Filter users based on their role types matching any of the tags specified in the tag array
-        const usersMatchingTags = usersInDepartments.filter(user => tag.includes(user.role_type));
-        // Get the email ids of users who match the role_type
-        const userEmails = usersMatchingTags.map(user => user.email);
-        sendMeetingAddedEmail(userEmails, newMeeting)
+        usersInDepartments.forEach(user => {
+            const matches = tag.some(role => new RegExp(`^${role}$`, 'i').test(user.role_type));
+            if (matches) {
+                userEmails.push(user.email);
+            }
+        });
+        sendMeetingAddedEmail(userEmails, newMeeting,'add')
         // Return success response
         res.status(201).json({ statusTxt: "success", message: 'Meeting added successfully' });
     } catch (error) {
@@ -53,7 +56,7 @@ exports.editMeeting = async (req, res) => {
     try {
         const { meetingId } = req.query;
         const updateData = { ...req.body }; // Copy the request body to a new object
-
+        console.log(updateData?.departmentIds)
         // Find the meeting by custom meetingId
         let meeting = await Meeting.findOne({ meetingId: meetingId });
 
@@ -69,8 +72,20 @@ exports.editMeeting = async (req, res) => {
         }
 
         // Save the updated meeting to the database
-        await meeting.save();
-
+        const newMeetingUpdate = await meeting.save();
+        
+        const usersInDepartments = await User.find({ 'departments.dep_id': { $in: updateData?.departmentIds } });
+        const userEmails = [];
+        // Filter users based on their role types matching any of the tags specified in the tag array
+        usersInDepartments?.forEach(user => {
+            const matches = updateData?.tag?.some(role => new RegExp(`^${role}$`, 'i').test(user.role_type));
+            if (matches) {
+                userEmails.push(user.email);
+            }
+        });
+        if(userEmails?.length > 0){
+            sendMeetingAddedEmail(userEmails, newMeetingUpdate,'update')
+        }
         // Return success response warcat-144
         res.status(200).json({ statusTxt: "success", message: 'Meeting updated successfully', meeting: meeting });
     } catch (error) {
@@ -109,12 +124,12 @@ exports.getAllMeetings = async (req, res) => {
         const depIds = user.departments.map(department => department.dep_id);
 
         // Find meetings associated with the user's departments
-        const meetings = await Meeting.find({ 
+        const meetings = await Meeting.find({
             departmentIds: { $in: depIds },
             tag: { $regex: new RegExp(role_type, 'i') }
-            
+
         });
-        
+
         console.log(role_type)
         const meetingsWithDepartmentNames = await populateDepartmentNames(meetings);
 
