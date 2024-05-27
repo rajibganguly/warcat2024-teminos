@@ -476,7 +476,7 @@ async function calculateTaskStatusPercentages(res) {
 
 
 exports.setAdminVerified = async (req, res) => {
-    const { task_id, userId } = req.body;
+    const { task_id, userId, flag} = req.body;
 
     try {
         // Find the user by userId
@@ -496,7 +496,7 @@ exports.setAdminVerified = async (req, res) => {
             }
 
             // Update the task's admin_verified status to true
-            task.admin_verified = true;
+            task.admin_verified = flag;
             await task.save();
 
             return res.status(200).json({ message: 'Admin verification successful', taskId: task._id });
