@@ -101,13 +101,18 @@ exports.addTask = async function (req, res) {
         const tagValues = department.map(dep => dep.tag);
         const flattenedTagValues = tagValues.flat();
         const users = await User.find({ 'departments.dep_id': { $in: depId } });
-        // Filter users based on role_type matching any of the tag values
-        const filteredUsers = users.filter(user =>
-            flattenedTagValues.includes(user.role_type)
-        );
-        // Extract email addresses of filtered users
-        const userEmails = filteredUsers.map(user => user.email);
-        sendTaskAddedEmail(userEmails)
+        const userEmails = [];
+        // Filter users based on their role types matching any of the tags specified in the tag array
+        users?.forEach(user => {
+            const matches = flattenedTagValues?.some(role => new RegExp(`^${role}$`, 'i').test(user.role_type));
+            if (matches) {
+                userEmails.push(user.email);
+            }
+        });
+
+        if (userEmails?.length > 0) {
+            sendTaskAddedEmail(userEmails, newTasks, 'add')
+        }
         res.status(201).json({ message: 'Tasks added successfully', tasks: newTasks });
     } catch (error) {
         // Handle Yup validation errors
@@ -150,7 +155,6 @@ exports.getTask = async function (req, res) {
         const tasks = await Task.find({
             'department.dep_id': { $in: depIds },
             'department.tag': { $regex: new RegExp(role_type, 'i') }
-            
         });
 
 
@@ -178,6 +182,11 @@ exports.editTask = async function (req, res) {
         if (task_title) updateFields.task_title = task_title;
         if (task_image) updateFields.task_image = task_image;
         if (target_date) updateFields.target_date = target_date;
+        // Extract dep_id into an array
+        const depIds = updateFields?.department.map(department => department.dep_id);
+
+        // Extract tags into a flat array (assuming tags need to be unique)
+        const tags = [...new Set(updateFields?.department.flatMap(department => department.tag))];
 
         // Find and update the task
         const updatedTask = await Task.findOneAndUpdate(
@@ -190,7 +199,18 @@ exports.editTask = async function (req, res) {
         if (!updatedTask) {
             return res.status(404).json({ message: 'Task not found' });
         }
-
+        const users = await User.find({ 'departments.dep_id': { $in: depIds } });
+        const userEmails = [];
+        // Filter users based on their role types matching any of the tags specified in the tag array
+        users?.forEach(user => {
+            const matches = tags?.some(role => new RegExp(`^${role}$`, 'i').test(user.role_type));
+            if (matches) {
+                userEmails.push(user.email);
+            }
+        });
+        if (userEmails?.length > 0) {
+            sendTaskAddedEmail(userEmails, [updatedTask], 'update')
+        }
         res.status(200).json({ message: 'Task updated successfully', task: updatedTask });
     } catch (error) {
         // Handle Yup validation errors
@@ -455,7 +475,7 @@ async function calculateTaskStatusPercentages(res) {
 
 
 exports.setAdminVerified = async (req, res) => {
-    const { task_id, userId } = req.body;
+    const { task_id, userId, flag} = req.body;
 
     try {
         // Find the user by userId
@@ -475,7 +495,7 @@ exports.setAdminVerified = async (req, res) => {
             }
 
             // Update the task's admin_verified status to true
-            task.admin_verified = true;
+            task.admin_verified = flag;
             await task.save();
 
             return res.status(200).json({ message: 'Admin verification successful', taskId: task._id });

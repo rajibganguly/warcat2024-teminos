@@ -29,47 +29,54 @@ exports.sendRegistrationEmail = async (email, password, dpartment_name, role_typ
     }
 };
 
-exports.sendMeetingAddedEmail = async (emails, meetingDetails) => {
+exports.sendMeetingAddedEmail = async (emails, meetingDetails, flag) => {
     try {
-        // Send mail with defined transport object
-        if (emails) {
+        if (emails && emails.length > 0) {
+            const updateText = flag === 'update' ? 'Updated' : 'added';
             let info = await transporter.sendMail({
-                from: 'Warcat',
-                to: emails, // Array of receiver's email addresses
-                subject: 'Meeting Added Successfully',
-                text: `Dear User, 
-                Your meeting has been added successfully. 
+                from: '"Warcat" <admin@warcat.com>',
+                to: emails.join(','), // Convert array of emails to a comma-separated string
+                subject: `Meeting ${updateText} Successfully`,
+                text: `Dear User,
+                Your meeting has been ${updateText} successfully.
                 Meeting Details:
                 Topic: ${meetingDetails.meetingTopic}
                 Date: ${meetingDetails.selectDate}
                 Time: ${meetingDetails.selectTime}`
-                // Department IDs: ${meetingDetails.departmentIds.join(', ')}
-                // Tags: ${meetingDetails.tag.join(', ')}
-                // Image URL: ${meetingDetails.imageUrl}`
+               
             });
+
+            console.log('Email sent: ', info.messageId);
+        } else {
+            console.error('No emails provided');
         }
-        console.log('Email sent: ', info.messageId);
     } catch (error) {
         console.error('Error sending email: ', error);
         throw new Error('Error sending email');
     }
 };
 
-exports.sendTaskAddedEmail = async (emails) => {
+exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
     try {
-        // Send mail with defined transport object
-        if (emails && emails.length > 0) {
-            let info = await transporter.sendMail({
-                from: 'Warcat',
-                to: emails.join(', '), // Join the array of receiver's email addresses
-                subject: 'Task Added Successfully',
-                text: `Dear User, 
-                Your task has been added successfully.`
-                // Task Image: ${taskDetails.task_image}`
-            });
-        } else {
-            console.log('No email addresses provided to send task added email.');
-        }
+        const updateText = flag === 'update' ? 'Updated' : 'Added';
+        
+        // Construct the email body dynamically
+        let emailBody = `Dear User,\n\nYour task has been ${updateText} successfully.\n\nTask Details:\n`;
+        
+        taskDetails.forEach((task, index) => {
+            emailBody += `Task ${index + 1}:\n`;
+            emailBody += `Title: ${task.task_title}\n`;
+            emailBody += `Target Date: ${task.target_date}\n\n`;
+        });
+
+        let info = await transporter.sendMail({
+            from: '"Warcat" <admin@warcat.com>', // Specify the sender's email
+            to: emails.join(', '), // Join the array of receiver's email addresses
+            subject: `Task ${updateText} Successfully`,
+            text: emailBody
+        });
+
+        console.log('Email sent: ', info.messageId);
     } catch (error) {
         console.error('Error sending email: ', error);
         throw new Error('Error sending email');
