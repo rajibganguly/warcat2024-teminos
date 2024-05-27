@@ -326,7 +326,7 @@ exports.addNoteToTask = async (req, res) => {
         // Check if the user role is allowed to add notes based on department tags
         const isAllowed = await Task.findOne({
             task_id: taskId,
-            'department.tag': { $in: role_type }
+            'department.tag': { $in:  new RegExp(role_type, 'i') }
         });
 
         if (!isAllowed) {
@@ -375,7 +375,7 @@ exports.uploadCompletionDetails = async (req, res) => {
         // Check if the user role is allowed to add notes based on department tags
         const isAllowed = await Task.findOne({
             task_id: taskId,
-            'department.tag': { $in: role_type }
+            'department.tag': { $in: new RegExp(role_type, 'i') }
         });
 
         if (!isAllowed) {
