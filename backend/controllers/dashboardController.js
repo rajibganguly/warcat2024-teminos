@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const Department = require('../models/department');
 const Meeting = require('../models/meeting');
-const Task = require('../models/task'); 
+const Task = require('../models/task');
 
 exports.getStatistics = async (req, res) => {
     const { userId, role_type } = req.query; // Extract userId and role_type from request body
@@ -41,13 +41,23 @@ exports.getStatistics = async (req, res) => {
         const totalDepartments = await Department.countDocuments({ _id: { $in: depIds } });
 
         // Find completed tasks associated with the user's departments
-        const completedTasks = await Task.countDocuments({ 'department.dep_id': { $in: depIds }, status: 'completed' });
-
+        const completedTasks = await Task.countDocuments({ 
+            'department.dep_id': { $in: depIds },
+            'department.tag': { $regex: new RegExp(role_type, 'i') },
+            status: 'completed'
+        });
         // Find total meetings associated with the user's departments
-        const totalMeetings = await Meeting.countDocuments({ departmentIds: { $in: depIds } });
+        const totalMeetings = await Meeting.countDocuments({
+            departmentIds: { $in: depIds },
+            tag: { $regex: new RegExp(role_type, 'i') }
+        });
 
         // Find assigned tasks associated with the user's departments
-        const assignedTasks = await Task.countDocuments({ 'department.dep_id': { $in: depIds } });
+        const assignedTasks = await Task.countDocuments({
+            'department.dep_id': { $in: depIds },
+            'department.tag': { $regex: new RegExp(role_type, 'i') }
+        });
+
 
         return res.status(200).json({
             totalDepartments,
