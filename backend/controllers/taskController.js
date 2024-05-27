@@ -414,8 +414,10 @@ exports.getTaskStatusPercentages = async (req, res) => {
 
     try {
         if (role_type === 'admin') {
+            const tasks = await Task.find();
+
             // If role_type is 'admin', proceed with calculating task status percentages
-            return calculateTaskStatusPercentages(res);
+            return calculateTaskStatusPercentages(res,tasks);
         }
 
         // Find the user by userId
@@ -425,13 +427,27 @@ exports.getTaskStatusPercentages = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        // Get the department IDs of the user
+        const depIds = user.departments.map(department => department.dep_id);
+
+        // Find tasks associated with the user's departments where tag contains specific elements
+        const tasks = await Task.find({
+            'department.dep_id': { $in: depIds },
+            'department.tag': { $regex: new RegExp(role_type, 'i') }
+        });
+
+
+        if (!tasks || tasks.length === 0) {
+            return res.status(404).json({ message: 'No tasks found for the user' });
+        }
+
         // Check if the user role_type is 'head_of_office' or 'secretary'
         if (user.role_type !== role_type && user.role_type !== role_type) {
             return res.status(403).json({ error: 'User is not authorized to access task status percentages' });
         }
 
         // Continue with calculating task status percentages
-        return calculateTaskStatusPercentages(res);
+        return calculateTaskStatusPercentages(res,tasks);
     } catch (error) {
         console.error('Error fetching task status percentages:', error);
         return res.status(500).json({ error: 'Internal server error' });
@@ -439,12 +455,12 @@ exports.getTaskStatusPercentages = async (req, res) => {
 };
 
 // Function to calculate task status percentages
-async function calculateTaskStatusPercentages(res) {
+async function calculateTaskStatusPercentages(res,tasks) {
     try {
         const keywords = ["completed", "initiated", "inProgress"]; // Specify the keywords you want to check
 
         // Get total assigned tasks
-        const totalTasks = await Task.countDocuments();
+        const totalTasks = await tasks.countDocuments();
 
         // Initialize an object to store percentages for each keyword
         const keywordData = {};
@@ -452,7 +468,11 @@ async function calculateTaskStatusPercentages(res) {
         // Loop through each keyword and calculate its percentage
         for (const keyword of keywords) {
             // Count the number of tasks with the current keyword in the "status" field
-            const keywordTasksCount = await Task.countDocuments({ status: keyword });
+            if (keyword === "completed") {
+                keywordTasksCount = await tasks.countDocuments({ status: keyword, admin_verified: 1 });
+            } else {
+                keywordTasksCount = await tasks.countDocuments({ status: keyword });
+            }
 
             // Calculate the percentage of tasks with the current keyword
             const keywordPercentage = (keywordTasksCount / totalTasks) * 100;
@@ -475,7 +495,7 @@ async function calculateTaskStatusPercentages(res) {
 
 
 exports.setAdminVerified = async (req, res) => {
-    const { task_id, userId, flag} = req.body;
+    const { task_id, userId, flag } = req.body;
 
     try {
         // Find the user by userId
