@@ -326,7 +326,7 @@ exports.addNoteToTask = async (req, res) => {
         // Check if the user role is allowed to add notes based on department tags
         const isAllowed = await Task.findOne({
             task_id: taskId,
-            'department.tag': { $in: role_type }
+            'department.tag': { $in:  new RegExp(role_type, 'i') }
         });
 
         if (!isAllowed) {
@@ -375,7 +375,7 @@ exports.uploadCompletionDetails = async (req, res) => {
         // Check if the user role is allowed to add notes based on department tags
         const isAllowed = await Task.findOne({
             task_id: taskId,
-            'department.tag': { $in: role_type }
+            'department.tag': { $in: new RegExp(role_type, 'i') }
         });
 
         if (!isAllowed) {
@@ -408,7 +408,6 @@ exports.uploadCompletionDetails = async (req, res) => {
 
 
 
-// Controller function to get task status percentages
 exports.getTaskStatusPercentages = async (req, res) => {
     const { userId, role_type } = req.query; // Extract userId and role_type from request body
 
@@ -417,7 +416,7 @@ exports.getTaskStatusPercentages = async (req, res) => {
             const tasks = await Task.find();
 
             // If role_type is 'admin', proceed with calculating task status percentages
-            return calculateTaskStatusPercentages(res,tasks);
+            return calculateTaskStatusPercentages(res, tasks);
         }
 
         // Find the user by userId
@@ -436,7 +435,6 @@ exports.getTaskStatusPercentages = async (req, res) => {
             'department.tag': { $regex: new RegExp(role_type, 'i') }
         });
 
-
         if (!tasks || tasks.length === 0) {
             return res.status(404).json({ message: 'No tasks found for the user' });
         }
@@ -447,7 +445,7 @@ exports.getTaskStatusPercentages = async (req, res) => {
         }
 
         // Continue with calculating task status percentages
-        return calculateTaskStatusPercentages(res,tasks);
+        return calculateTaskStatusPercentages(res, tasks);
     } catch (error) {
         console.error('Error fetching task status percentages:', error);
         return res.status(500).json({ error: 'Internal server error' });
@@ -455,23 +453,33 @@ exports.getTaskStatusPercentages = async (req, res) => {
 };
 
 // Function to calculate task status percentages
-async function calculateTaskStatusPercentages(res,tasks) {
+async function calculateTaskStatusPercentages(res, tasks) {
     try {
         const keywords = ["completed", "initiated", "inProgress"]; // Specify the keywords you want to check
 
-        // Get total assigned tasks
-        const totalTasks = await tasks.countDocuments();
+        let totalTasks;
+
+        // Check if tasks is a mongoose query or array
+        if (tasks.countDocuments) {
+            // Get total assigned tasks using countDocuments method
+            totalTasks = await tasks.countDocuments();
+        } else {
+            // Get total assigned tasks by getting the length of the array
+            totalTasks = tasks.length;
+        }
 
         // Initialize an object to store percentages for each keyword
         const keywordData = {};
 
         // Loop through each keyword and calculate its percentage
         for (const keyword of keywords) {
+            let keywordTasksCount;
+
             // Count the number of tasks with the current keyword in the "status" field
             if (keyword === "completed") {
-                keywordTasksCount = await tasks.countDocuments({ status: keyword, admin_verified: 1 });
+                keywordTasksCount = tasks.filter(task => task.status === keyword && task.admin_verified === 1).length;
             } else {
-                keywordTasksCount = await tasks.countDocuments({ status: keyword });
+                keywordTasksCount = tasks.filter(task => task.status === keyword).length;
             }
 
             // Calculate the percentage of tasks with the current keyword
@@ -483,8 +491,10 @@ async function calculateTaskStatusPercentages(res,tasks) {
                 percentage: keywordPercentage ? keywordPercentage.toFixed(2) : ''
             };
         }
+
         // Add the totalAssigned to the response object
         keywordData.totalAssigned = totalTasks;
+        
         // Return the percentages in JSON response
         return res.status(200).json(keywordData);
     } catch (error) {
@@ -492,6 +502,8 @@ async function calculateTaskStatusPercentages(res,tasks) {
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+
 
 
 exports.setAdminVerified = async (req, res) => {
