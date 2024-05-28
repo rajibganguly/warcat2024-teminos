@@ -195,17 +195,17 @@ async function registerUser(userData) {
 
     // If user with the same email exists, update their departments
     if (existingUser) {
-
         if (existingUser.name) existingUser.name = name;
         if (existingUser.phone_number) existingUser.phone_number = phone_number;
         if (existingUser.designation) existingUser.designation = designation;
         await existingUser.save();
-
+        
         // Ensure that the department to be added is not already present in the user's departments
-        if (!existingUser.departments.some(dep => dep.dep_id.toString() === department._id.toString())) {
+       // if (!existingUser.departments.some(dep => dep.dep_id.toString() === department._id.toString())) {
             existingUser.departments.push({ dep_id: department._id, dep_name: department.department_name });
             await existingUser.save();
-        }
+       // }
+       console.log(existingUser)
         return; // No need to create a new user
     }
     // Generate a random password
@@ -259,7 +259,7 @@ exports.getAllDepartments = async (req, res) => {
 
         // Get the department IDs of the user
         const depIds = user.departments.map(department => department.dep_id);
-
+console.log(depIds,'depIds')
         // Find departments associated with the user's departments
         const departments = await Department.find({ _id: { $in: depIds } });
         const departmentsWithDetails = await populateDepartmentDetails(departments);
@@ -280,10 +280,10 @@ async function populateDepartmentDetails(departments) {
     // Array to store promises for populating department details
     const promises = departments.map(async (department) => {
         let getId = 'warcat-' + department._id;
-
-        const secretary = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'secretary' });
-        const headOfOffice = await User.findOne({ 'departments.dep_id': department._id, 'role_type': 'head_of_Office' });
-
+        
+        const secretary = await User.findOne({ 'departments.dep_id': department._id, 'role_type': new RegExp('secretary', 'i')});
+        const headOfOffice = await User.findOne({ 'departments.dep_id': department._id, 'role_type': new RegExp('head_of_Office', 'i') });
+console.log(headOfOffice)
         return {
             id: getId,
             department: department,
