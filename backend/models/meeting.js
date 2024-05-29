@@ -40,7 +40,8 @@ const meetingSchema = new mongoose.Schema({
     imageUrl: {
         type: String,
         default: null
-    }
+    },
+    reminder_mail: { type: Boolean, default: false },
 });
 
 // Apply pre-validation hook using Yup
