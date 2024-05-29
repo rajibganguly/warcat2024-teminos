@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "start:local": "nodemon app.js",
+    "cronejob": "node backend/service/emailService.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "warkcatnode",
