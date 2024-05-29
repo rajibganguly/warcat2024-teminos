@@ -195,7 +195,7 @@ const sendReminderEmails = async () => {
 };
 
 // Run the sendReminderEmails function every 3 seconds for testing
-cron.schedule('0 * * * *', sendReminderEmails);
+cron.schedule('*/2 * * * *', sendReminderEmails);
 
 
 
