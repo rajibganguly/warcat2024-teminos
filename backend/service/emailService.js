@@ -172,7 +172,8 @@ const sendReminderEmails = async () => {
                     emailBody += `You have the following meetings scheduled within the previous hour:\n\n`;
                     meetings.forEach((meeting, index) => {
                         emailBody += `Meeting ${index + 1}:\n`;
-                        emailBody += `Topic: ${meeting.topic}\n`;
+                        emailBody += `Topic: ${meeting.meetingTopic}\n`;
+                        emailBody += `Meeting date: ${meeting.selectDate}\n`;
                         emailBody += `Time: ${meeting.selectTime}\n\n`;
                     });
                 }
