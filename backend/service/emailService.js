@@ -87,7 +87,6 @@ exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
 };
 
 // Function to send reminder emails for tasks due within the next day
-// Function to fetch meetings
 const fetchMeetings = async (depIds, roleType, targetDate) => {
     return Meeting.find({
         departmentIds: { $in: depIds },
@@ -96,29 +95,27 @@ const fetchMeetings = async (depIds, roleType, targetDate) => {
     });
 };
 
-// Function to send reminder emails for tasks and meetings
 const sendReminderEmails = async () => {
     console.log('Sending reminder emails...');
     try {
         const users = await User.find();
 
+        const now = new Date();
+        const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
         for (const user of users) {
             const depIds = user.departments.map(department => department.dep_id);
 
-            // Calculate the date one day before the target_date
-            const targetDate = new Date();
-           // targetDate.setDate(targetDate.getDate() - 1);
-
-            // Find incomplete tasks
+            // Find tasks scheduled within the next hour
             const incompleteTasks = await Task.find({
                 'department.dep_id': { $in: depIds },
                 'department.tag': { $regex: new RegExp(user.role_type, 'i') },
                 status: { $in: ['in progress', 'initiated'] }, // Filter for desired statuses
-                target_date: targetDate
+                target_date: { $gte: now, $lt: oneHourLater }
             });
 
-            // Fetch meetings
-            const meetings = await fetchMeetings(depIds, user.role_type, targetDate);
+            // Fetch meetings scheduled within the next hour
+            const meetings = await fetchMeetings(depIds, user.role_type, now, oneHourLater);
 
             // Check if there are incomplete tasks or meetings scheduled
             if (incompleteTasks.length > 0 || meetings.length > 0) {
@@ -126,7 +123,7 @@ const sendReminderEmails = async () => {
 
                 // Add tasks to email body
                 if (incompleteTasks.length > 0) {
-                    emailBody += `You have the following tasks that are due one day before ${targetDate}:\n\n`;
+                    emailBody += `You have the following tasks scheduled within the next hour:\n\n`;
                     incompleteTasks.forEach((task, index) => {
                         emailBody += `Task ${index + 1}:\n`;
                         emailBody += `Title: ${task.task_title}\n`;
@@ -137,11 +134,11 @@ const sendReminderEmails = async () => {
 
                 // Add meetings to email body
                 if (meetings.length > 0) {
-                    emailBody += `You have the following meetings scheduled after ${targetDate}:\n\n`;
+                    emailBody += `You have the following meetings scheduled within the next hour:\n\n`;
                     meetings.forEach((meeting, index) => {
                         emailBody += `Meeting ${index + 1}:\n`;
                         emailBody += `Topic: ${meeting.topic}\n`;
-                        emailBody += `Target Date: ${meeting.timestamp}\n\n`;
+                        emailBody += `Time: ${meeting.timestamp}\n\n`;
                     });
                 }
 
@@ -162,8 +159,7 @@ const sendReminderEmails = async () => {
     }
 };
 
-
-
-// Schedule the sendReminderEmails function to run per hours 
+// Schedule the sendReminderEmails function to run every hour
 cron.schedule('0 * * * *', sendReminderEmails);
+
 
