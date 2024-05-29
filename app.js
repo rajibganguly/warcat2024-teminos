@@ -29,7 +29,10 @@ const db = process.env.MONGODB_URL;
 const monogConnection = async () => {
     try {
         console.log("db::::::::::::", db);
-        await mongoose.connect(db)
+        await mongoose.connect(db, {
+            serverSelectionTimeoutMS: 30000, // 30 seconds
+            socketTimeoutMS: 45000 // 45 seconds
+        })
         console.log("[mongodb service] monogConnection connected")
     } catch (err) {
         console.log("[mongodb service] monogConnection Error", err)
