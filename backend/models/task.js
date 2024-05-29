@@ -22,7 +22,7 @@ const taskSchema = new mongoose.Schema({
     }],
     status: { type: String, default: 'initiated' },
     admin_verified: { type: Number, default: 0 },
-   // add_note: { type: Boolean, default: false },
+    reminder_mail: { type: Boolean, default: false },
     note_details :[{ 
         note_description :String,
         note_written_by: String,
