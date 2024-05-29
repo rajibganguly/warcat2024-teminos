@@ -26,7 +26,7 @@ exports.sendRegistrationEmail = async (email, password, department_name, role_ty
             Your registration was successful. Your email: ${email}, Your password: ${password}`
         });
 
-        console.log('Email sent: ', info.messageId);
+       // console.log('Email sent: ', info.messageId);
     } catch (error) {
         console.error('Error sending email: ', error);
         throw new Error('Error sending email');
@@ -50,7 +50,7 @@ exports.sendMeetingAddedEmail = async (emails, meetingDetails, flag) => {
                 Time: ${meetingDetails.selectTime}`
             });
 
-            console.log('Email sent: ', info.messageId);
+           // console.log('Email sent: ', info.messageId);
         } else {
             console.error('No emails provided');
         }
@@ -79,7 +79,7 @@ exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
             text: emailBody
         });
 
-        console.log('Email sent: ', info.messageId);
+        //console.log('Email sent: ', info.messageId);
     } catch (error) {
         console.error('Error sending email: ', error);
         throw new Error('Error sending email');
@@ -98,6 +98,7 @@ const fetchMeetings = async (depIds, roleType, targetDate) => {
 
 // Function to send reminder emails for tasks and meetings
 const sendReminderEmails = async () => {
+    console.log('Sending reminder emails...');
     try {
         const users = await User.find();
 
@@ -106,7 +107,7 @@ const sendReminderEmails = async () => {
 
             // Calculate the date one day before the target_date
             const targetDate = new Date();
-            targetDate.setDate(targetDate.getDate() - 1);
+           // targetDate.setDate(targetDate.getDate() - 1);
 
             // Find incomplete tasks
             const incompleteTasks = await Task.find({
@@ -152,7 +153,7 @@ const sendReminderEmails = async () => {
                     text: emailBody
                 });
 
-                console.log('Reminder email sent: ', info.messageId);
+               // console.log('Reminder email sent: ', info.messageId);
             }
         }
     } catch (error) {
@@ -163,5 +164,6 @@ const sendReminderEmails = async () => {
 
 
 
-// Schedule the sendReminderEmails function to run daily at midnight
-cron.schedule('0 0 * * *', sendReminderEmails);
+// Schedule the sendReminderEmails function to run per hours 
+cron.schedule('0 * * * *', sendReminderEmails);
+
