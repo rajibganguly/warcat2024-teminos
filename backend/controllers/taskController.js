@@ -78,21 +78,29 @@ exports.addTask = async function (req, res) {
 
         // Flatten the nested array of tasks within each department
         const allTasks = department.flatMap(dep =>
-            dep.tasks.map(taskData => ({
-                task_id: uuidv4(), // Generate unique UUID
-                meetingId,
-                meetingTopic,
-                department: {
-                    dep_id: dep.dep_id,
-                    dep_name: dep.dep_name,
-                    tag: dep.tag
-                },
-                task_title: taskData.taskTitle,
-                task_image: taskData.uploadImage,
-                target_date: taskData.targetDate
-            }))
-
+            dep.tasks.map(taskData => {
+                let target_date = new Date(taskData.targetDate); 
+                let current_time = new Date();
+                target_date.setHours(current_time.getHours());
+                target_date.setMinutes(current_time.getMinutes());
+               // target_date.setSeconds(current_time.getSeconds());
+        
+                return {
+                    task_id: uuidv4(), // Generate unique UUID
+                    meetingId,
+                    meetingTopic,
+                    department: {
+                        dep_id: dep.dep_id,
+                        dep_name: dep.dep_name,
+                        tag: dep.tag
+                    },
+                    task_title: taskData.taskTitle,
+                    task_image: taskData.uploadImage,
+                    target_date: target_date 
+                };
+            })
         );
+        
 
         // Create and save all tasks concurrently
         const newTasks = await Task.insertMany(allTasks);
@@ -181,7 +189,16 @@ exports.editTask = async function (req, res) {
         if (tag) updateFields.tag = tag;
         if (task_title) updateFields.task_title = task_title;
         if (task_image) updateFields.task_image = task_image;
-        if (target_date) updateFields.target_date = target_date;
+        if (target_date) {
+            let current_time = new Date(); // Get the current time
+        
+            // Set the hours, minutes, and seconds of the target_date object to match the current time
+            target_date.setHours(current_time.getHours());
+            target_date.setMinutes(current_time.getMinutes());
+            target_date.setSeconds(current_time.getSeconds());
+        
+            updateFields.target_date = target_date;
+        }
         // Extract dep_id into an array
         const depIds = updateFields?.department.map(department => department.dep_id);
 
