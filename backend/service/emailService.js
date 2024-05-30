@@ -148,7 +148,8 @@ const sendReminderEmailsForTask = async () => {
     try {
         const now = new Date();
         now.setSeconds(0, 0); // Set seconds and milliseconds to 0
-console.log(now,'now')
+        console.log(now, 'now');
+
         // Fetch tasks that need reminder emails
         const tasks = await Task.find({
             status: { $in: ['inProgress', 'initiated'] },
@@ -157,39 +158,42 @@ console.log(now,'now')
 
         for (const task of tasks) {
             const targetDate = new Date(task.target_date);
-            targetDate.setSeconds(0, 0); 
+            targetDate.setSeconds(0, 0);
 
             // Calculate one hour before the target date
             const oneHourBefore = new Date(targetDate.getTime() - 60 * 60 * 1000);
-            oneHourBefore.setSeconds(0, 0); 
-            console.log(tasks,'oneHourBefore')
+            oneHourBefore.setSeconds(0, 0);
+            console.log(oneHourBefore, 'oneHourBefore');
+
             // Check if the current time is exactly one hour before the target date
-            if (now === oneHourBefore) {
-                const depId = task.department.dep_id;
-                console.log(depId, 'depId');
+            if (now.getTime() === oneHourBefore.getTime()) {
+                for (const department of task.department) {  // Iterate over the array of departments
+                    const depId = department.dep_id;
+                    console.log(depId, 'depId');
 
-                // Fetch users associated with the task's department ID
-                const users = await User.find({
-                    'departments.dep_id': depId,
-                    role_type: { $regex: new RegExp(task.department.tag, 'i') }
-                });
-
-                console.log(users, 'users');
-                for (const user of users) {
-                    let emailBody = `Dear ${user.name},\n\n`;
-                    emailBody += `You have the following task scheduled within the previous hour:\n\n`;
-                    emailBody += `Task Title: ${task.task_title}\n`;
-                    emailBody += `Target Date: ${task.target_date}\n\n`;
-
-                    let info = await transporter.sendMail({
-                        from: '"Warcat" <admin@warcat.com>',
-                        to: user.email,
-                        subject: 'Task Reminder Mail',
-                        text: emailBody
+                    // Fetch users associated with the task's department ID
+                    const users = await User.find({
+                        'departments.dep_id': depId,
+                        role_type: { $regex: new RegExp(department.tag.join('|'), 'i') }  // Handle multiple tags
                     });
 
-                    // Mark the reminder email as sent
-                    //await Task.findByIdAndUpdate(task._id, { reminder_mail: true });
+                    console.log(users, 'users');
+                    for (const user of users) {
+                        let emailBody = `Dear ${user.name},\n\n`;
+                        emailBody += `You have the following task scheduled within the previous hour:\n\n`;
+                        emailBody += `Task Title: ${task.task_title}\n`;
+                        emailBody += `Target Date: ${task.target_date}\n\n`;
+
+                        let info = await transporter.sendMail({
+                            from: '"Warcat" <admin@warcat.com>',
+                            to: user.email,
+                            subject: 'Task Reminder Mail',
+                            text: emailBody
+                        });
+
+                        // Mark the reminder email as sent
+                        await Task.findByIdAndUpdate(task._id, { reminder_mail: true });
+                    }
                 }
             }
         }
@@ -198,6 +202,8 @@ console.log(now,'now')
         throw new Error('Error sending task reminder emails');
     }
 };
+
+
 
 
 
