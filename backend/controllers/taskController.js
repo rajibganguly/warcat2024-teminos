@@ -195,7 +195,7 @@ exports.editTask = async function (req, res) {
             // Set the hours, minutes, and seconds of the target_date object to match the current time
             target_date.setHours(current_time.getHours());
             target_date.setMinutes(current_time.getMinutes());
-            target_date.setSeconds(current_time.getSeconds());
+            //target_date.setSeconds(current_time.getSeconds());
         
             updateFields.target_date = target_date;
         }
