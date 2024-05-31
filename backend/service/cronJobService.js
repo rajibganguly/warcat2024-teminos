@@ -125,10 +125,8 @@ const sendReminderEmailsForTask = async () => {
                             subject: 'Task Reminder Mail',
                             text: emailBody
                         });
-
-                        // Mark the reminder email as sent
-                        await Task.findByIdAndUpdate(task._id, { reminder_mail: true });
                     }
+                    await Task.findByIdAndUpdate(task._id, { reminder_mail: true });
                 }
             }
         }
