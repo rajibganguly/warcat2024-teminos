@@ -29,7 +29,7 @@ const sendReminderEmailsForMeeting = async () => {
         const now = new Date();
         now.setSeconds(0, 0); // Set seconds and milliseconds to 0
         // Fetch all meetings
-        const meetings = await Meeting.find().maxTimeMS(60000);
+        const meetings = await Meeting?.find()?.maxTimeMS(60000);
 
         for (const meeting of meetings) {
             const meetingDate = new Date(meeting.selectDate);
