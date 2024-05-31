@@ -6,6 +6,14 @@ const User = require('../models/user');
 const Task = require('../models/task');
 const Meeting = require('../models/meeting');
 
+mongoose.connect(process.env.MONGODB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000, // 30 seconds
+    socketTimeoutMS: 45000, // 45 seconds
+});
+
+
 // Create a transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
