@@ -53,5 +53,6 @@ meetingSchema.pre('validate', async function (next) {
         next(error);
     }
 });
-
+meetingSchema.index({ selectDate: 1 });
+meetingSchema.index({ meetingTopic: 1 });
 module.exports = mongoose.model('Meeting', meetingSchema);
