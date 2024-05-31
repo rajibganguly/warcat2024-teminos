@@ -133,7 +133,9 @@ const sendReminderEmailsForMeeting = async () => {
                 }
 
                 // Mark the reminder email as sent
-                await Meeting.findByIdAndUpdate(meeting._id, { reminder_mail: true });
+                await Meeting.findByIdAndUpdate(task.meeting_id, {
+                    $set: { reminder_mail: true }
+                });
             }
         }
     } catch (error) {
@@ -190,7 +192,9 @@ const sendReminderEmailsForTask = async () => {
                             text: emailBody
                         });
                     }
-                    await Task.findByIdAndUpdate(task._id, { reminder_mail: true });
+                    await Meeting.findByIdAndUpdate(task.meeting_id, {
+                        $set: { reminder_mail: true }
+                    });
                 }
             }
         }
