@@ -30,6 +30,8 @@ const monogConnection = async () => {
     try {
         console.log("db::::::::::::", db);
         await mongoose.connect(db, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
             serverSelectionTimeoutMS: 30000, // 30 seconds
             socketTimeoutMS: 45000 // 45 seconds
         })
