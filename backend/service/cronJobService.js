@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const User = require('../models/user');
 const Task = require('../models/task');
 const Meeting = require('../models/meeting');
+const moment = require('moment-timezone');
 
 mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
@@ -26,19 +27,18 @@ const transporter = nodemailer.createTransport({
 
 const sendReminderEmailsForMeeting = async () => {
     try {
-        const now = new Date();
-        now.setSeconds(0, 0); // Set seconds and milliseconds to 0
+        const now = moment().tz('Asia/Kolkata').seconds(0).milliseconds(0).toDate();
+        
         // Fetch all meetings
         const meetings = await Meeting?.find()?.maxTimeMS(60000);
 
         for (const meeting of meetings) {
-            const meetingDate = new Date(meeting.selectDate);
+            const meetingDate = moment(meeting.selectDate).tz('Asia/Kolkata');
             const [hours, minutes] = meeting.selectTime.split(':').map(Number);
-            meetingDate.setHours(hours, minutes, 0, 0);
+            meetingDate.set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
 
             // Calculate one hour before the meeting time
-            const oneHourBeforeMeeting = new Date(meetingDate.getTime() - 60 * 60 * 1000);
-            oneHourBeforeMeeting.setSeconds(0, 0); // Set seconds and milliseconds to 0
+            const oneHourBeforeMeeting = meetingDate.clone().subtract(1, 'hour').seconds(0).milliseconds(0).toDate();
 
             // Check if the current time is exactly one hour before the meeting time
             const isOneHourBefore = now.getTime() === oneHourBeforeMeeting.getTime();
@@ -69,7 +69,9 @@ const sendReminderEmailsForMeeting = async () => {
                 }
 
                 // Mark the reminder email as sent
-                await Meeting.findByIdAndUpdate(meeting._id, { reminder_mail: true });
+                await Meeting.findByIdAndUpdate(task.meeting_id, {
+                    $set: { reminder_mail: true }
+                });
             }
         }
     } catch (error) {
@@ -78,11 +80,9 @@ const sendReminderEmailsForMeeting = async () => {
     }
 };
 
-
 const sendReminderEmailsForTask = async () => {
     try {
-        const now = new Date();
-        now.setSeconds(0, 0); // Set seconds and milliseconds to 0
+        const now = moment().tz('Asia/Kolkata').seconds(0).milliseconds(0).toDate();
         console.log(now, 'now');
 
         // Fetch tasks that need reminder emails
@@ -92,12 +92,10 @@ const sendReminderEmailsForTask = async () => {
         });
 
         for (const task of tasks) {
-            const targetDate = new Date(task.target_date);
-            targetDate.setSeconds(0, 0);
+            const targetDate = moment(task.target_date).tz('Asia/Kolkata').seconds(0).milliseconds(0).toDate();
 
             // Calculate one hour before the target date
-            const oneHourBefore = new Date(targetDate.getTime() - 60 * 60 * 1000);
-            oneHourBefore.setSeconds(0, 0);
+            const oneHourBefore = moment(targetDate).tz('Asia/Kolkata').subtract(1, 'hour').seconds(0).milliseconds(0).toDate();
             console.log(oneHourBefore, 'oneHourBefore');
 
             // Check if the current time is exactly one hour before the target date
@@ -126,7 +124,9 @@ const sendReminderEmailsForTask = async () => {
                             text: emailBody
                         });
                     }
-                    await Task.findByIdAndUpdate(task._id, { reminder_mail: true });
+                    await Meeting.findByIdAndUpdate(task.meeting_id, {
+                        $set: { reminder_mail: true }
+                    });
                 }
             }
         }
