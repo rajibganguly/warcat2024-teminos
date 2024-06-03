@@ -18,13 +18,57 @@ const transporter = nodemailer.createTransport({
 // Function to send registration email
 exports.sendRegistrationEmail = async (email, password, department_name, role_type) => {
     try {
+        const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Warcat Mail</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        </head>
+        <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d; background-color: #F4F5FF; display: flex; justify-content: center;">
+            <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
+                <div style="width: 50%;">
+                    <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px; box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
+                        <div style="margin-bottom: 30px;">
+                            <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
+                                <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
+                            </div>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 8px;">Dear User,</p>
+                            <h2 style="margin-top: 0px;">Welcome to our platform!</h2>
+                            <hr>
+                            <p>You are added under the ${department_name} department. Your role type is: ${role_type}.</p>
+                            <p>Your registration was successful.</p>
+                            <p><b>Email:</b> ${email}</p>
+                            <p><b>Password:</b> ${password}</p>
+                        </div>
+                    </div>
+                    <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
+                        <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
+                            <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                            <h3>WARCAT</h3>
+                        </div>
+                        <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
+                        <a style="font-size: 11px;color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
+                        <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
+                    </div>
+                </div>
+            </section>
+        </body>
+        </html>
+        `;
+
         let info = await transporter.sendMail({
             from: '"Warcat" <admin@warcat.com>',
             to: email,
             subject: 'Registration Successful',
-            text: `Welcome to our platform! 
-            You are added under ${department_name} department. Your role type is : ${role_type},
-            Your registration was successful. Your email: ${email}, Your password: ${password}`
+            html: htmlContent
         });
 
         // console.log('Email sent: ', info.messageId);
@@ -34,22 +78,65 @@ exports.sendRegistrationEmail = async (email, password, department_name, role_ty
     }
 };
 
+
 // Function to send meeting added email
 exports.sendMeetingAddedEmail = async (emails, meetingDetails, flag) => {
-    console.log('meetingUser.emailmeetingUser.emailmeetingUser.email')
     try {
         if (emails && emails.length > 0) {
             const updateText = flag === 'update' ? 'Updated' : 'Added';
+            const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Warcat Mail</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+            </head>
+            <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
+                <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
+                    <div style="width: 50%;">
+                        <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
+                            <div style="margin-bottom: 30px;">
+                                <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
+                                    <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                    <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
+                                </div>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 8px;">Dear User,</p>
+                                <h2 style="margin-top: 0px;">Your meeting has been ${updateText} successfully.</h2>
+                                <hr>
+                                <p>Meeting Details:</p>
+                                <b>
+                                    <p>Topic: ${meetingDetails.meetingTopic}</p>
+                                    <p>Date: ${meetingDetails.selectDate}</p>
+                                    <p>Time: ${meetingDetails.selectTime}</p>
+                                </b>
+                            </div>
+                        </div>
+                        <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
+                            <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
+                                <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                                <h3>WARCAT</h3>
+                            </div>
+                            <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
+                            <a style="font-size: 11px;color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
+                            <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
+                        </div>
+                    </div>
+                </section>
+            </body>
+            </html>
+            `;
+
             let info = await transporter.sendMail({
                 from: '"Warcat" <admin@warcat.com>',
                 to: emails.join(','),
                 subject: `Meeting ${updateText} Successfully`,
-                text: `Dear User,
-                Your meeting has been ${updateText} successfully.
-                Meeting Details:
-                Topic: ${meetingDetails.meetingTopic}
-                Date: ${meetingDetails.selectDate}
-                Time: ${meetingDetails.selectTime}`
+                html: htmlContent
             });
 
             // console.log('Email sent: ', info.messageId);
@@ -62,23 +149,66 @@ exports.sendMeetingAddedEmail = async (emails, meetingDetails, flag) => {
     }
 };
 
+
 // Function to send task added email
 exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
     try {
         const updateText = flag === 'update' ? 'Updated' : 'Added';
-        let emailBody = `Dear User,\n\nYour task has been ${updateText} successfully.\n\nTask Details:\n`;
+        let emailBody = `<p>Dear User,</p>
+                         <h2 style="margin-top: 0px;">Your task has been ${updateText} successfully.</p>
+                         <p>Task Details:</p>`;
 
         taskDetails.forEach((task, index) => {
-            emailBody += `Task ${index + 1}:\n`;
-            emailBody += `Title: ${task.task_title}\n`;
-            emailBody += `Target Date: ${task.target_date}\n\n`;
+            emailBody += `<p><b>Task ${index + 1}:</b><br>
+                          Title: ${task.task_title}<br>
+                          Target Date: ${task.target_date}</p>`;
         });
+
+        const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Warcat Mail</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        </head>
+        <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
+            <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
+                <div style="width: 50%;">
+                    <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px; box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
+                        <div style="margin-bottom: 30px;">
+                            <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
+                                <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
+                            </div>
+                        </div>
+                        <div>
+                            ${emailBody}
+                        </div>
+                    </div>
+                    <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
+                        <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
+                            <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                            <h3>WARCAT</h3>
+                        </div>
+                        <p style="font-size: 11px; margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
+                        <a style="font-size: 11px; color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
+                        <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
+                    </div>
+                </div>
+            </section>
+        </body>
+        </html>
+        `;
 
         let info = await transporter.sendMail({
             from: '"Warcat" <admin@warcat.com>',
             to: emails.join(', '),
             subject: `Task ${updateText} Successfully`,
-            text: emailBody
+            html: htmlContent
         });
 
         //console.log('Email sent: ', info.messageId);
@@ -87,3 +217,4 @@ exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
         throw new Error('Error sending email');
     }
 };
+
