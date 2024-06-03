@@ -102,7 +102,7 @@ const sendReminderEmailsForMeeting = async () => {
                         from: '"Warcat" <admin@warcat.com>',
                         to: meetingUser.email,
                         subject: 'Meeting Reminder Mail',
-                        text: htmlContent
+                        html: htmlContent
                     });
                 }
 
@@ -198,7 +198,7 @@ const sendReminderEmailsForTask = async () => {
                             from: '"Warcat" <admin@warcat.com>',
                             to: user.email,
                             subject: 'Task Reminder Mail',
-                            text: htmlContent
+                            html: htmlContent
                         });
                     }
                     await Meeting.findByIdAndUpdate(task._id, {
