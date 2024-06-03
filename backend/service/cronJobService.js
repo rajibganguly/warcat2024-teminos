@@ -66,7 +66,7 @@ const sendReminderEmailsForMeeting = async () => {
                     </head>
                     <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
                         <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
-                            <div style="width: 100%;">
+                            <div style="width: 80%; margin: 0 10%;">
                                 <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
                                     <div style="margin-bottom: 30px;">
                                         <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
@@ -163,7 +163,7 @@ const sendReminderEmailsForTask = async () => {
                         </head>
                         <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
                             <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
-                                <div style="width: 100%;">
+                                <div style="width: 80%; margin: 0 10%;">
                                     <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
                                         <div style="margin-bottom: 30px;">
                                             <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
