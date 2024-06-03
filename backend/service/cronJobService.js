@@ -87,10 +87,7 @@ const sendReminderEmailsForMeeting = async () => {
                                     </div>
                                 </div>
                                 <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
-                                    <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
-                                        <img src="https://develop.d1g0aga5817ond.amplifyapp.com/static/media/logo-dark-sm-removebg-preview.028e6f8b4a37ccf919cc.png" alt="" height="40px">
-                                        <h3>WARCAT</h3>
-                                    </div>
+                                    
                                     <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
                                     <a style="font-size: 11px;color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
                                     <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
@@ -186,10 +183,7 @@ const sendReminderEmailsForTask = async () => {
                                         </div>
                                     </div>
                                     <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
-                                        <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
-                                            <img src="https://develop.d1g0aga5817ond.amplifyapp.com/static/media/logo-dark-sm-removebg-preview.028e6f8b4a37ccf919cc.png" alt="" height="40px">
-                                            <h3>WARCAT</h3>
-                                        </div>
+                                        
                                         <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
                                         <a style="font-size: 11px;color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
                                         <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
