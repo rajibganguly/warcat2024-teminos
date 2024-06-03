@@ -42,6 +42,7 @@ const meetingSchema = new mongoose.Schema({
         default: null
     },
     reminder_mail: { type: Boolean, default: false },
+    timestamp: { type: Date, default: Date.now },
 });
 
 // Apply pre-validation hook using Yup

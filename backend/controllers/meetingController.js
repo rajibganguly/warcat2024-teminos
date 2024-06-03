@@ -103,7 +103,7 @@ exports.getAllMeetings = async (req, res) => {
     try {
         if (role_type === 'admin') {
             // If role_type is 'admin', fetch all meetings
-            const meetings = await Meeting.find();
+            const meetings = await Meeting.find().sort({ timestamp: -1});
             const meetingsWithDepartmentNames = await populateDepartmentNames(meetings);
             return res.status(200).json({ statusTxt: "success", meetings: meetingsWithDepartmentNames });
         }
@@ -128,7 +128,7 @@ exports.getAllMeetings = async (req, res) => {
             departmentIds: { $in: depIds },
             tag: { $regex: new RegExp(role_type, 'i') }
 
-        });
+        }).sort({ timestamp: -1});
 
         console.log(role_type)
         const meetingsWithDepartmentNames = await populateDepartmentNames(meetings);

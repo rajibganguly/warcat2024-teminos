@@ -140,7 +140,7 @@ exports.getTask = async function (req, res) {
     try {
         if (role_type === 'admin') {
             // If role_type is 'admin', fetch all tasks
-            const tasks = await Task.find();
+            const tasks = await Task.find().sort({ timestamp: -1});
             return res.status(200).json({ message: 'All tasks retrieved successfully', tasks });
         }
 
@@ -163,7 +163,7 @@ exports.getTask = async function (req, res) {
         const tasks = await Task.find({
             'department.dep_id': { $in: depIds },
             'department.tag': { $regex: new RegExp(role_type, 'i') }
-        });
+        }).sort({ timestamp: -1});
 
 
         if (!tasks || tasks.length === 0) {
