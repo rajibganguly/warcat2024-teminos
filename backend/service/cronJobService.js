@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const cron = require('node-cron');
 const mongoose = require('mongoose');
- require('dotenv').config();
+require('dotenv').config();
 const User = require('../models/user');
 const Task = require('../models/task');
 const Meeting = require('../models/meeting');
@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 const sendReminderEmailsForMeeting = async () => {
     try {
         const now = moment().tz('Asia/Kolkata').seconds(0).milliseconds(0).toDate();
-        
+
         // Fetch all meetings
         const meetings = await Meeting?.find()?.maxTimeMS(60000);
 
@@ -53,18 +53,59 @@ const sendReminderEmailsForMeeting = async () => {
                 });
                 console.log(meetingUsers, 'meetingUsersmeetingUsers');
                 for (const meetingUser of meetingUsers) {
-                    console.log(meetingUser.email, 'meetingUser.email')
-                    let emailBody = `Dear ${meetingUser.name},\n\n`;
-                    emailBody += `You have the following meeting scheduled in one hour:\n\n`;
-                    emailBody += `Meeting Topic: ${meeting.meetingTopic}\n`;
-                    emailBody += `Meeting Date: ${meeting.selectDate}\n`;
-                    emailBody += `Time: ${meeting.selectTime}\n\n`;
+                    const htmlContent = `
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Warcat Mail</title>
+                        <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+                    </head>
+                    <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
+                        <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
+                            <div style="width: 50%;">
+                                <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
+                                    <div style="margin-bottom: 30px;">
+                                        <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
+                                            <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                            <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p style="margin: 0 0 8px;">Dear ${meetingUser.name},</p>
+                                        <h2 style="margin-top: 0px;">You have the following meeting scheduled in one hour:</h2>
+                                        <hr>
+                                        <p>Meeting Details:</p>
+                                        <b>
+                                            <p>Meeting Topic: ${meeting.meetingTopic}</p>
+                                            <p>Meeting Date: ${meeting.selectDate}</p>
+                                            <p>Time: ${meeting.selectTime}</p>
+                                        </b>
+                                    </div>
+                                </div>
+                                <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
+                                    <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
+                                        <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                                        <h3>WARCAT</h3>
+                                    </div>
+                                    <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
+                                    <a style="font-size: 11px;color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
+                                    <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
+                                </div>
+                            </div>
+                        </section>
+                    </body>
+                    </html>
+                    `;
 
                     let info = await transporter.sendMail({
                         from: '"Warcat" <admin@warcat.com>',
                         to: meetingUser.email,
                         subject: 'Meeting Reminder Mail',
-                        text: emailBody
+                        text: htmlContent
                     });
                 }
 
@@ -112,16 +153,58 @@ const sendReminderEmailsForTask = async () => {
 
                     console.log(users, 'users');
                     for (const user of users) {
-                        let emailBody = `Dear ${user.name},\n\n`;
-                        emailBody += `You have the following task scheduled within the previous hour:\n\n`;
-                        emailBody += `Task Title: ${task.task_title}\n`;
-                        emailBody += `Target Date: ${task.target_date}\n\n`;
+                        const htmlContent = `
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Warcat Mail</title>
+                            <link rel="preconnect" href="https://fonts.googleapis.com">
+                            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                            <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+                        </head>
+                        <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
+                            <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
+                                <div style="width: 50%;">
+                                    <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
+                                        <div style="margin-bottom: 30px;">
+                                            <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
+                                                <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                                <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p style="margin: 0 0 8px;">Dear ${user.name},</p>
+                                            <h2 style="margin-top: 0px;">You have the following task scheduled within the previous hour:</h2>
+                                            <hr>
+                                            <p>Task Details:</p>
+                                            <b>
+                                                <p>Task Title: ${task.task_title}</p>
+                                                <p>Target Date: ${task.target_date}</p>
+                                            </b>
+                                        </div>
+                                    </div>
+                                    <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
+                                        <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
+                                            <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                                            <h3>WARCAT</h3>
+                                        </div>
+                                        <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
+                                        <a style="font-size: 11px;color: rgb(103, 103, 103);" href="#">Privacy Policy</a>
+                                        <p style="font-size: 11px;">© 2024 WARCAT - War-room Assistant for Report Compilation & Task tracking. 2024.</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </body>
+                        </html>
+                        `;
 
                         let info = await transporter.sendMail({
                             from: '"Warcat" <admin@warcat.com>',
                             to: user.email,
                             subject: 'Task Reminder Mail',
-                            text: emailBody
+                            text: htmlContent
                         });
                     }
                     await Meeting.findByIdAndUpdate(task._id, {
