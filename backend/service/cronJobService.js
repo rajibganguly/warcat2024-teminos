@@ -66,11 +66,11 @@ const sendReminderEmailsForMeeting = async () => {
                     </head>
                     <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
                         <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
-                            <div style="width: 50%;">
+                            <div style="width: 100%;">
                                 <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
                                     <div style="margin-bottom: 30px;">
                                         <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
-                                            <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                            <img src="https://develop.d1g0aga5817ond.amplifyapp.com/static/media/logo-dark-sm-removebg-preview.028e6f8b4a37ccf919cc.png" alt="" height="54px">
                                             <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
                                         </div>
                                     </div>
@@ -88,7 +88,7 @@ const sendReminderEmailsForMeeting = async () => {
                                 </div>
                                 <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
                                     <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
-                                        <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                                        <img src="https://develop.d1g0aga5817ond.amplifyapp.com/static/media/logo-dark-sm-removebg-preview.028e6f8b4a37ccf919cc.png" alt="" height="40px">
                                         <h3>WARCAT</h3>
                                     </div>
                                     <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
@@ -166,11 +166,11 @@ const sendReminderEmailsForTask = async () => {
                         </head>
                         <body style="margin: 0;padding: 0;font-family: 'Roboto', sans-serif; color: #2d2d2d;">
                             <section style="background-color: #F4F5FF; display: flex; justify-content: center;">
-                                <div style="width: 50%;">
+                                <div style="width: 100%;">
                                     <div style="background-color: #fff; padding: 32px; height: fit-content; border-radius: 4px;box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; margin-top: 20px;">
                                         <div style="margin-bottom: 30px;">
                                             <div style="display: flex; align-items: center; column-gap: 2px; margin-left: -6px;">
-                                                <img src="logo-dark-sm-removebg-preview.png" alt="" height="54px">
+                                                <img src="https://develop.d1g0aga5817ond.amplifyapp.com/static/media/logo-dark-sm-removebg-preview.028e6f8b4a37ccf919cc.png" alt="" height="54px">
                                                 <h1 style="color: rgb(10, 0, 119);">WARCAT</h1>
                                             </div>
                                         </div>
@@ -187,7 +187,7 @@ const sendReminderEmailsForTask = async () => {
                                     </div>
                                     <div style="background-color: transparent; padding: 10px 32px 48px; height: fit-content;">
                                         <div style="display: flex; align-items: center; column-gap: 0px; margin-left: -6px;">
-                                            <img src="logo-dark-sm-removebg-preview.png" alt="" height="40px">
+                                            <img src="https://develop.d1g0aga5817ond.amplifyapp.com/static/media/logo-dark-sm-removebg-preview.028e6f8b4a37ccf919cc.png" alt="" height="40px">
                                             <h3>WARCAT</h3>
                                         </div>
                                         <p style="font-size: 11px;margin-top: 0;">You have received this email because you are registered at WARCAT, to ensure the implementation of our Terms of Service and (or) for other legitimate matters.</p>
