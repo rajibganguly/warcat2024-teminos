@@ -149,13 +149,14 @@ exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
     try {
         const updateText = flag === 'update' ? 'Updated' : 'Added';
         let emailBody = `<p>Dear User,</p>
-                         <h2 style="margin-top: 0px;">Your task has been ${updateText} successfully.</p>
+                         <h2 style="margin-top: 0px;">Your task has been ${updateText} successfully.</h2>
+                         <hr>
                          <p>Task Details:</p>`;
 
         taskDetails.forEach((task, index) => {
-            emailBody += `<p><b>Task ${index + 1}:</b><br>
-                          Title: ${task.task_title}<br>
-                          Target Date: ${task.target_date}</p>`;
+            emailBody += `<p>Task: <b>${index + 1}</b><br>
+                          Title: <b>${task.task_title}</b><br>
+                          Target Date: <b>${task.target_date}</b></p>`;
         });
 
         const htmlContent = `
