@@ -154,7 +154,7 @@ exports.sendTaskAddedEmail = async (emails, taskDetails, flag) => {
                          <p>Task Details:</p>`;
 
         taskDetails.forEach((task, index) => {
-            emailBody += `<p>Task: <b>${index + 1}</b><br>
+            emailBody += `<p>Task: ${index + 1}<br>
                           Title: <b>${task.task_title}</b><br>
                           Target Date: <b>${task.target_date}</b></p>`;
         });
