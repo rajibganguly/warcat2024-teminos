@@ -473,7 +473,6 @@ exports.getTaskStatusPercentages = async (req, res) => {
 async function calculateTaskStatusPercentages(res, tasks) {
     try {
         const keywords = ["completed", "initiated", "inProgress"]; // Specify the keywords you want to check
-
         let totalTasks;
 
         // Check if tasks is a mongoose query or array
@@ -487,6 +486,7 @@ async function calculateTaskStatusPercentages(res, tasks) {
 
         // Initialize an object to store percentages for each keyword
         const keywordData = {};
+        const monthWiseCounts = {};
 
         // Loop through each keyword and calculate its percentage
         for (const keyword of keywords) {
@@ -511,14 +511,45 @@ async function calculateTaskStatusPercentages(res, tasks) {
 
         // Add the totalAssigned to the response object
         keywordData.totalAssigned = totalTasks;
-        
-        // Return the percentages in JSON response
+
+        // Loop through each task to count tasks per month
+        tasks.forEach(task => {
+            const date = new Date(task.timestamp);
+            const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+            if (!monthWiseCounts[monthYear]) {
+                monthWiseCounts[monthYear] = {
+                    completed: 0,
+                    initiated: 0,
+                    inProgress: 0,
+                    total: 0
+                };
+            }
+
+            // Increment the total count for the month
+            monthWiseCounts[monthYear].total++;
+
+            // Increment the count for the respective status
+            if (task.status === 'completed' && task.admin_verified === 1) {
+                monthWiseCounts[monthYear].completed++;
+            } else if (task.status === 'initiated') {
+                monthWiseCounts[monthYear].initiated++;
+            } else if (task.status === 'inProgress') {
+                monthWiseCounts[monthYear].inProgress++;
+            }
+        });
+
+        // Add the month-wise counts to the response object
+        keywordData.monthWiseCounts = monthWiseCounts;
+
+        // Return the percentages and month-wise counts in JSON response
         return res.status(200).json(keywordData);
     } catch (error) {
         console.error('Error fetching task status percentages:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+
 
 
 
