@@ -8,7 +8,7 @@ const Meeting = require('../models/meeting');
 const moment = require('moment-timezone');
 
 mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
+  //  useNewUrlParser: true,
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 30000, // 30 seconds
     socketTimeoutMS: 45000, // 45 seconds
