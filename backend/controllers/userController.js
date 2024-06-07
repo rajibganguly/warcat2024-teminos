@@ -5,6 +5,8 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const Department = require('../models/department');
 const yup = require('yup');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 // User Login
 exports.loginUser = async function (req, res, next) {
@@ -102,37 +104,101 @@ exports.logoutUser = function (req, res, next) {
 // Password Reset
 
 
-exports.resetPassword = async function (req, res, next) {
-    const { email, password } = req.body;
+
+exports.requestPasswordReset = async function (req, res, next) {
+    const { email } = req.body;
 
     try {
-        // Validate email
         if (!email) {
             return res.status(400).json({ statusTxt: "error", message: "Email is required." });
         }
 
-        // Validate email format
         const emailRegex = /\S+@\S+\.\S+/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({ statusTxt: "error", message: "Invalid email format." });
         }
 
-        // Validate password
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ statusTxt: "error", message: "This Email is not registered!" });
+        } else {
+            if (user.resetOtp && Date.now() < user.resetOtpExpiry) {
+                return res.status(400).json({ statusTxt: "error", message: "OTP already sent. Please check your email." });
+            }
+
+            // Generate OTP
+            const otp = crypto.randomInt(100000, 999999).toString();
+
+            // Store OTP securely
+            user.resetOtp = otp;
+            user.resetOtpExpiry = Date.now() + 3600000; // OTP expires in 1 hour
+            await user.save();
+
+            // Send OTP via email
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.NOTIFICATION_EMAIL, // Your Gmail email address
+                    pass: process.env.NOTIFICATION_EMAIL_PASSWORD // Your Gmail password
+                }
+            });
+
+            const mailOptions = {
+                from: process.env.NOTIFICATION_EMAIL,
+                to: email,
+                subject: 'Password Reset OTP',
+                text: `Your OTP for password reset is ${otp}`
+            };
+
+            await transporter.sendMail(mailOptions);
+
+            return res.json({ statusTxt: "success", message: "OTP sent to your email!" });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
+    }
+};
+
+
+exports.resetPassword = async function (req, res, next) {
+    const { email, password, otp } = req.body;
+
+    try {
+        if (!email) {
+            return res.status(400).json({ statusTxt: "error", message: "Email is required." });
+        }
+
+        const emailRegex = /\S+@\S+\.\S+/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ statusTxt: "error", message: "Invalid email format." });
+        }
+
         if (!password) {
             return res.status(400).json({ statusTxt: "error", message: "Password is required." });
         }
 
-        // Check if the email is registered
+        if (!otp) {
+            return res.status(400).json({ statusTxt: "error", message: "OTP is required." });
+        }
+
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({ statusTxt: "error", message: "This Email Is not registered!" });
+            return res.status(404).json({ statusTxt: "error", message: "This Email is not registered!" });
         } else {
+            if (user.resetOtp !== otp || Date.now() > user.resetOtpExpiry) {
+                return res.status(400).json({ statusTxt: "error", message: "Invalid or expired OTP." });
+            }
+
             // Hash the new password
             const hashedPassword = await bcrypt.hash(password, 10);
 
             // Update password
             user.password = hashedPassword;
+            user.resetOtp = null;
+            user.resetOtpExpiry = null;
             await user.save();
 
             console.log('Success');
@@ -143,4 +209,5 @@ exports.resetPassword = async function (req, res, next) {
         return res.status(500).json({ statusTxt: "error", message: "An error occurred while processing your request." });
     }
 };
+
 

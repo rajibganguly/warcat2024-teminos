@@ -27,7 +27,15 @@ const userSchema = new Schema({
         dep_name: String
     }],
     phone_number: String,
-    designation: String
+    designation: String,
+    resetOtp: {
+        type: String,
+        default: null
+    },
+    resetOtpExpiry: {
+        type: Date,
+        default: null
+    }
 });
 
 const User = mongoose.model('User', userSchema);
